@@ -15,6 +15,8 @@ interface PlaceSuggestion {
 }
 
 interface PlaceData {
+  placeId: string
+  name: string
   address: string
   locality: string | null
   country: string | null
@@ -44,7 +46,6 @@ export function VenueForm({ venueId, initialData }: VenueFormProps) {
   const router = useRouter()
   const isEditing = venueId !== undefined
 
-  const [name, setName] = useState(initialData?.name ?? '')
   const [sleeps, setSleeps] = useState(initialData?.sleeps ?? '')
   const [mode, setMode] = useState<'search' | 'manual'>('search')
 
@@ -56,6 +57,7 @@ export function VenueForm({ venueId, initialData }: VenueFormProps) {
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   // Manual path state
+  const [manualName, setManualName] = useState(initialData?.name ?? '')
   const [manualAddress, setManualAddress] = useState(initialData?.address ?? '')
 
   const [loading, setLoading] = useState(false)
@@ -83,6 +85,8 @@ export function VenueForm({ venueId, initialData }: VenueFormProps) {
 
   function selectPlace(p: PlaceSuggestion) {
     setSelectedPlace({
+      placeId: p.placeId,
+      name: p.displayName ?? '',
       address: p.formattedAddress ?? '',
       locality: p.locality,
       country: p.country,
@@ -90,7 +94,6 @@ export function VenueForm({ venueId, initialData }: VenueFormProps) {
       lng: p.lng,
       googleMapsUrl: p.googleMapsUrl,
     })
-    if (p.displayName && !name.trim()) setName(p.displayName)
     setQuery('')
     setSuggestions([])
   }
@@ -102,7 +105,9 @@ export function VenueForm({ venueId, initialData }: VenueFormProps) {
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
-    if (!name.trim()) { setError('Name is required'); return }
+
+    const nameValue = mode === 'search' ? selectedPlace?.name : manualName.trim()
+    if (!nameValue) { setError('Name is required'); return }
 
     setLoading(true)
     setError(null)
@@ -110,17 +115,18 @@ export function VenueForm({ venueId, initialData }: VenueFormProps) {
     const payload =
       mode === 'search' && selectedPlace
         ? {
-            name: name.trim(),
+            name: selectedPlace.name,
             address: selectedPlace.address,
             locality: selectedPlace.locality,
             country: selectedPlace.country,
             lat: selectedPlace.lat,
             lng: selectedPlace.lng,
             googleMapsUrl: selectedPlace.googleMapsUrl,
+            googlePlaceId: selectedPlace.placeId,
             sleeps: sleeps ? parseInt(sleeps) : null,
           }
         : {
-            name: name.trim(),
+            name: manualName.trim(),
             address: manualAddress.trim() || null,
             sleeps: sleeps ? parseInt(sleeps) : null,
           }
@@ -159,19 +165,8 @@ export function VenueForm({ venueId, initialData }: VenueFormProps) {
       )}
 
       <div>
-        <label className={labelClass()}>Name <span className="text-red-500">*</span></label>
-        <input
-          type="text"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          className={inputClass()}
-          placeholder="Chateau Example"
-        />
-      </div>
-
-      <div>
         <div className="flex items-center justify-between mb-1">
-          <label className={labelClass().replace(' mb-1', '')}>Location</label>
+          <label className={labelClass().replace(' mb-1', '')}>Place</label>
           <button
             type="button"
             onClick={() => { setMode(mode === 'search' ? 'manual' : 'search'); setSelectedPlace(null); setQuery('') }}
@@ -183,11 +178,12 @@ export function VenueForm({ venueId, initialData }: VenueFormProps) {
 
         {mode === 'search' ? (
           selectedPlace ? (
-            <div className="flex items-center justify-between rounded-lg border border-green-300 bg-green-50 px-3 py-2 text-sm">
-              <span className="text-green-800">
-                {selectedPlace.address}
-              </span>
-              <button type="button" onClick={clearPlace} className="ml-3 text-green-600 hover:text-green-800 flex-shrink-0">
+            <div className="flex items-start justify-between rounded-lg border border-green-300 bg-green-50 px-3 py-2 text-sm">
+              <div>
+                <div className="font-medium text-green-900">{selectedPlace.name}</div>
+                <div className="text-green-700 text-xs mt-0.5">{selectedPlace.address}</div>
+              </div>
+              <button type="button" onClick={clearPlace} className="ml-3 text-green-600 hover:text-green-800 flex-shrink-0 mt-0.5">
                 ✕
               </button>
             </div>
@@ -198,7 +194,7 @@ export function VenueForm({ venueId, initialData }: VenueFormProps) {
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
                 className={inputClass()}
-                placeholder="Search for a place…"
+                placeholder="Search for a venue…"
                 autoComplete="off"
               />
               {searching && (
@@ -225,13 +221,22 @@ export function VenueForm({ venueId, initialData }: VenueFormProps) {
             </div>
           )
         ) : (
-          <input
-            type="text"
-            value={manualAddress}
-            onChange={(e) => setManualAddress(e.target.value)}
-            className={inputClass()}
-            placeholder="Via dei Palazzi, 5, Montepulciano, Italy"
-          />
+          <div className="space-y-3">
+            <input
+              type="text"
+              value={manualName}
+              onChange={(e) => setManualName(e.target.value)}
+              className={inputClass()}
+              placeholder="Venue name"
+            />
+            <input
+              type="text"
+              value={manualAddress}
+              onChange={(e) => setManualAddress(e.target.value)}
+              className={inputClass()}
+              placeholder="Via dei Palazzi, 5, Montepulciano, Italy"
+            />
+          </div>
         )}
       </div>
 
