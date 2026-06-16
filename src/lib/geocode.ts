@@ -1,12 +1,18 @@
 export async function geocode(address: string): Promise<{ lat: number; lng: number } | null> {
   try {
-    const url = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(address)}&format=json&limit=1`
-    const res = await fetch(url, {
-      headers: { 'User-Agent': 'venue-viewer/1.0 (wedding venue research app)' },
-    })
-    const data = await res.json() as Array<{ lat: string; lon: string }>
-    if (!data || data.length === 0) return null
-    return { lat: parseFloat(data[0].lat), lng: parseFloat(data[0].lon) }
+    const key = process.env.GOOGLE_GEOCODING_API_KEY
+    if (!key) throw new Error('GOOGLE_GEOCODING_API_KEY is not set')
+
+    const url = `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(address)}&key=${key}`
+    const res = await fetch(url)
+    const data = await res.json() as {
+      status: string
+      results: Array<{ geometry: { location: { lat: number; lng: number } } }>
+    }
+
+    if (data.status !== 'OK' || data.results.length === 0) return null
+    const { lat, lng } = data.results[0].geometry.location
+    return { lat, lng }
   } catch {
     return null
   }
