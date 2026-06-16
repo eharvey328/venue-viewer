@@ -1,3 +1,5 @@
+import { extractLocality } from './locality'
+
 interface GeocodeResult {
   lat: number
   lng: number
@@ -34,11 +36,7 @@ export async function geocode(address: string): Promise<GeocodeResult | null> {
       return result.address_components.find((c) => c.types.includes(type))?.long_name ?? null
     }
 
-    const locality =
-      getComponent('locality') ??
-      getComponent('postal_town') ??
-      getComponent('administrative_area_level_3') ??
-      getComponent('administrative_area_level_2')
+    const locality = extractLocality(getComponent)
     const country = getComponent('country')
 
     return { lat, lng, locality, country }

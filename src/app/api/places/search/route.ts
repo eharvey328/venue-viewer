@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { extractLocality } from '@/lib/locality'
 
 interface AddressComponent {
   longText: string
@@ -41,11 +42,7 @@ export async function GET(request: NextRequest) {
 
     const results = places.map((p) => {
       const components = p.addressComponents ?? []
-      const locality =
-        getComponent(components, 'locality') ??
-        getComponent(components, 'postal_town') ??
-        getComponent(components, 'administrative_area_level_3') ??
-        getComponent(components, 'administrative_area_level_2')
+      const locality = extractLocality((type) => getComponent(components, type))
       const country = getComponent(components, 'country')
 
       return {
