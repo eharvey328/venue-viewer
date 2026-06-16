@@ -36,6 +36,7 @@ export async function getVenues(filters: VenueFilters) {
       lat: true,
       lng: true,
       sleeps: true,
+      googleMapsUrl: true,
     },
   })
 }
@@ -52,6 +53,7 @@ export async function createVenue(data: {
   lat?: number | null
   lng?: number | null
   sleeps?: number | null
+  googleMapsUrl?: string | null
 }) {
   return prisma.venue.create({ data })
 }
@@ -66,6 +68,7 @@ export async function updateVenue(
     lat?: number | null
     lng?: number | null
     sleeps?: number | null
+    googleMapsUrl?: string | null
   }
 ) {
   return prisma.venue.update({ where: { id }, data })

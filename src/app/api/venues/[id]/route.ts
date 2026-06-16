@@ -22,18 +22,30 @@ export async function PUT(request: NextRequest, { params }: Params) {
     const update: Parameters<typeof updateVenue>[1] = {}
     if (body.name !== undefined) update.name = body.name.trim()
     if (body.sleeps !== undefined) update.sleeps = typeof body.sleeps === 'number' ? body.sleeps : null
+
     if (body.address !== undefined) {
       const address = body.address?.trim() || null
       update.address = address
-      const coords = address ? await geocode(address) : null
-      update.locality = coords?.locality ?? null
-      update.country = coords?.country ?? null
-      update.lat = coords?.lat ?? null
-      update.lng = coords?.lng ?? null
+
+      // If client resolved via Places API, use provided data directly
+      if (body.googleMapsUrl !== undefined) {
+        update.locality = body.locality ?? null
+        update.country = body.country ?? null
+        update.lat = typeof body.lat === 'number' ? body.lat : null
+        update.lng = typeof body.lng === 'number' ? body.lng : null
+        update.googleMapsUrl = body.googleMapsUrl ?? null
+      } else {
+        // Manual path: geocode
+        const coords = address ? await geocode(address) : null
+        update.locality = coords?.locality ?? null
+        update.country = coords?.country ?? null
+        update.lat = coords?.lat ?? null
+        update.lng = coords?.lng ?? null
+        update.googleMapsUrl = null
+      }
     }
 
     const venue = await updateVenue(id, update)
-
     return NextResponse.json(venue)
   } catch (e) {
     console.error('PUT /api/venues/[id]:', e)

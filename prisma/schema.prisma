@@ -15,7 +15,8 @@ model Venue {
   country   String?
   lat       Float?
   lng       Float?
-  sleeps    Int?
+  sleeps        Int?
+  googleMapsUrl String?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }

@@ -12,8 +12,8 @@ interface AddressComponent {
 
 export async function geocode(address: string): Promise<GeocodeResult | null> {
   try {
-    const key = process.env.GOOGLE_GEOCODING_API_KEY
-    if (!key) throw new Error('GOOGLE_GEOCODING_API_KEY is not set')
+    const key = process.env.GOOGLE_MAPS_API_KEY
+    if (!key) throw new Error('GOOGLE_MAPS_API_KEY is not set')
 
     const url = `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(address)}&key=${key}`
     const res = await fetch(url)

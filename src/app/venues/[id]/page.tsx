@@ -44,6 +44,17 @@ export default async function VenueDetailPage({ params }: Props) {
         </span>
       )}
 
+      {venue.googleMapsUrl && (
+        <a
+          href={venue.googleMapsUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="mt-3 inline-block text-sm text-blue-600 hover:underline"
+        >
+          View on Google Maps →
+        </a>
+      )}
+
       {venue.lat != null && venue.lng != null && (
         <p className="mt-3 text-xs text-gray-400">
           {venue.lat.toFixed(4)}, {venue.lng.toFixed(4)}

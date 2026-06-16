@@ -10,17 +10,36 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Name is required' }, { status: 400 })
     }
 
+    const name = body.name.trim()
     const address = body.address?.trim() || null
-    const coords = address ? await geocode(address) : null
+    const sleeps = typeof body.sleeps === 'number' ? body.sleeps : null
 
+    // If client already resolved via Places API, use that data directly
+    if (body.googleMapsUrl) {
+      const venue = await createVenue({
+        name,
+        address,
+        locality: body.locality ?? null,
+        country: body.country ?? null,
+        lat: typeof body.lat === 'number' ? body.lat : null,
+        lng: typeof body.lng === 'number' ? body.lng : null,
+        sleeps,
+        googleMapsUrl: body.googleMapsUrl,
+      })
+      return NextResponse.json(venue, { status: 201 })
+    }
+
+    // Manual path: geocode the address
+    const coords = address ? await geocode(address) : null
     const venue = await createVenue({
-      name: body.name.trim(),
+      name,
       address,
       locality: coords?.locality ?? null,
       country: coords?.country ?? null,
       lat: coords?.lat ?? null,
       lng: coords?.lng ?? null,
-      sleeps: typeof body.sleeps === 'number' ? body.sleeps : null,
+      sleeps,
+      googleMapsUrl: null,
     })
 
     return NextResponse.json(venue, { status: 201 })
