@@ -1,15 +1,20 @@
+import { Pool } from 'pg'
+import { PrismaPg } from '@prisma/adapter-pg'
 import { PrismaClient } from '@/generated/prisma/client'
 
 const globalForPrisma = globalThis as unknown as {
   prisma: PrismaClient | undefined
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export const prisma: PrismaClient =
-  globalForPrisma.prisma ??
-  // Prisma v7 type requires adapter/accelerateUrl but reads DATABASE_URL at runtime
-  (new (PrismaClient as any)({
+function createPrismaClient() {
+  const pool = new Pool({ connectionString: process.env.DATABASE_URL })
+  const adapter = new PrismaPg(pool)
+  return new PrismaClient({
+    adapter,
     log: process.env.NODE_ENV === 'development' ? ['error', 'warn'] : ['error'],
-  }) as PrismaClient)
+  })
+}
+
+export const prisma = globalForPrisma.prisma ?? createPrismaClient()
 
 if (process.env.NODE_ENV !== 'production') globalForPrisma.prisma = prisma
