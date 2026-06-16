@@ -3,7 +3,8 @@ import { VenueCard } from './VenueCard'
 interface Venue {
   id: number
   name: string
-  address: string | null
+  locality: string | null
+  country: string | null
   sleeps: number | null
 }
 

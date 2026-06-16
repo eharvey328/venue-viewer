@@ -16,7 +16,7 @@ export async function getVenues(filters: VenueFilters) {
 
   if (filters.countries.length > 0) {
     where.OR = filters.countries.map((c) => ({
-      address: { contains: c, mode: 'insensitive' as const },
+      country: { contains: c, mode: 'insensitive' as const },
     }))
   }
 
@@ -31,6 +31,8 @@ export async function getVenues(filters: VenueFilters) {
       id: true,
       name: true,
       address: true,
+      locality: true,
+      country: true,
       lat: true,
       lng: true,
       sleeps: true,
@@ -45,6 +47,8 @@ export async function getVenueById(id: number) {
 export async function createVenue(data: {
   name: string
   address?: string | null
+  locality?: string | null
+  country?: string | null
   lat?: number | null
   lng?: number | null
   sleeps?: number | null
@@ -57,6 +61,8 @@ export async function updateVenue(
   data: {
     name?: string
     address?: string | null
+    locality?: string | null
+    country?: string | null
     lat?: number | null
     lng?: number | null
     sleeps?: number | null

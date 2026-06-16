@@ -16,6 +16,8 @@ export async function POST(request: NextRequest) {
     const venue = await createVenue({
       name: body.name.trim(),
       address,
+      locality: coords?.locality ?? null,
+      country: coords?.country ?? null,
       lat: coords?.lat ?? null,
       lng: coords?.lng ?? null,
       sleeps: typeof body.sleeps === 'number' ? body.sleeps : null,

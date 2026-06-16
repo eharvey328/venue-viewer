@@ -1,4 +1,16 @@
-export async function geocode(address: string): Promise<{ lat: number; lng: number } | null> {
+interface GeocodeResult {
+  lat: number
+  lng: number
+  locality: string | null
+  country: string | null
+}
+
+interface AddressComponent {
+  long_name: string
+  types: string[]
+}
+
+export async function geocode(address: string): Promise<GeocodeResult | null> {
   try {
     const key = process.env.GOOGLE_GEOCODING_API_KEY
     if (!key) throw new Error('GOOGLE_GEOCODING_API_KEY is not set')
@@ -7,12 +19,25 @@ export async function geocode(address: string): Promise<{ lat: number; lng: numb
     const res = await fetch(url)
     const data = await res.json() as {
       status: string
-      results: Array<{ geometry: { location: { lat: number; lng: number } } }>
+      results: Array<{
+        geometry: { location: { lat: number; lng: number } }
+        address_components: AddressComponent[]
+      }>
     }
 
     if (data.status !== 'OK' || data.results.length === 0) return null
-    const { lat, lng } = data.results[0].geometry.location
-    return { lat, lng }
+
+    const result = data.results[0]
+    const { lat, lng } = result.geometry.location
+
+    function getComponent(type: string) {
+      return result.address_components.find((c) => c.types.includes(type))?.long_name ?? null
+    }
+
+    const locality = getComponent('locality') ?? getComponent('postal_town') ?? getComponent('administrative_area_level_2')
+    const country = getComponent('country')
+
+    return { lat, lng, locality, country }
   } catch {
     return null
   }

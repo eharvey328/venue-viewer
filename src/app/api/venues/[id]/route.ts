@@ -26,6 +26,8 @@ export async function PUT(request: NextRequest, { params }: Params) {
       const address = body.address?.trim() || null
       update.address = address
       const coords = address ? await geocode(address) : null
+      update.locality = coords?.locality ?? null
+      update.country = coords?.country ?? null
       update.lat = coords?.lat ?? null
       update.lng = coords?.lng ?? null
     }
