@@ -90,6 +90,7 @@ export function VenueForm({ venueId, initialData }: VenueFormProps) {
       lng: p.lng,
       googleMapsUrl: p.googleMapsUrl,
     })
+    if (p.displayName && !name.trim()) setName(p.displayName)
     setQuery('')
     setSuggestions([])
   }
