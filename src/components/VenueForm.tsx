@@ -6,8 +6,6 @@ import { useRouter } from 'next/navigation'
 interface VenueFormData {
   name: string
   address: string
-  lat: string
-  lng: string
   sleeps: string
 }
 
@@ -16,7 +14,7 @@ interface VenueFormProps {
   initialData?: Partial<VenueFormData>
 }
 
-const EMPTY: VenueFormData = { name: '', address: '', lat: '', lng: '', sleeps: '' }
+const EMPTY: VenueFormData = { name: '', address: '', sleeps: '' }
 
 function labelClass() {
   return 'block text-sm font-medium text-gray-700 mb-1'
@@ -49,8 +47,6 @@ export function VenueForm({ venueId, initialData }: VenueFormProps) {
     const payload = {
       name: form.name.trim(),
       address: form.address.trim() || null,
-      lat: form.lat ? parseFloat(form.lat) : null,
-      lng: form.lng ? parseFloat(form.lng) : null,
       sleeps: form.sleeps ? parseInt(form.sleeps) : null,
     }
 
@@ -95,17 +91,6 @@ export function VenueForm({ venueId, initialData }: VenueFormProps) {
       <div>
         <label className={labelClass()}>Address</label>
         <input type="text" value={form.address} onChange={set('address')} className={inputClass()} placeholder="Luberon, Provence, France" />
-      </div>
-
-      <div className="grid grid-cols-2 gap-4">
-        <div>
-          <label className={labelClass()}>Latitude</label>
-          <input type="number" step="any" value={form.lat} onChange={set('lat')} className={inputClass()} placeholder="43.8123" />
-        </div>
-        <div>
-          <label className={labelClass()}>Longitude</label>
-          <input type="number" step="any" value={form.lng} onChange={set('lng')} className={inputClass()} placeholder="5.3456" />
-        </div>
       </div>
 
       <div>

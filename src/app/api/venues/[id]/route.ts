@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getVenueById, updateVenue, deleteVenue } from '@/lib/venues'
+import { geocode } from '@/lib/geocode'
 
 type Params = { params: Promise<{ id: string }> }
 
@@ -18,13 +19,18 @@ export async function PUT(request: NextRequest, { params }: Params) {
       return NextResponse.json({ error: 'Name cannot be empty' }, { status: 400 })
     }
 
-    const venue = await updateVenue(id, {
-      ...(body.name !== undefined && { name: body.name.trim() }),
-      ...(body.address !== undefined && { address: body.address?.trim() || null }),
-      ...(body.lat !== undefined && { lat: typeof body.lat === 'number' ? body.lat : null }),
-      ...(body.lng !== undefined && { lng: typeof body.lng === 'number' ? body.lng : null }),
-      ...(body.sleeps !== undefined && { sleeps: typeof body.sleeps === 'number' ? body.sleeps : null }),
-    })
+    const update: Parameters<typeof updateVenue>[1] = {}
+    if (body.name !== undefined) update.name = body.name.trim()
+    if (body.sleeps !== undefined) update.sleeps = typeof body.sleeps === 'number' ? body.sleeps : null
+    if (body.address !== undefined) {
+      const address = body.address?.trim() || null
+      update.address = address
+      const coords = address ? await geocode(address) : null
+      update.lat = coords?.lat ?? null
+      update.lng = coords?.lng ?? null
+    }
+
+    const venue = await updateVenue(id, update)
 
     return NextResponse.json(venue)
   } catch (e) {

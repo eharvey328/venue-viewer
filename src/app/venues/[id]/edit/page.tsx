@@ -22,8 +22,6 @@ export default async function EditVenuePage({ params }: Props) {
         initialData={{
           name: venue.name,
           address: venue.address ?? '',
-          lat: venue.lat != null ? String(venue.lat) : '',
-          lng: venue.lng != null ? String(venue.lng) : '',
           sleeps: venue.sleeps != null ? String(venue.sleeps) : '',
         }}
       />
