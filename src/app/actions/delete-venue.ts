@@ -1,17 +1,11 @@
 'use server';
 
+import { z } from 'zod';
 import { deleteVenue } from '@/lib/venues';
-import type { ActionState } from './types';
+import { actionClient } from '@/lib/safe-action';
 
-export async function deleteVenueAction(
-  _prevState: ActionState,
-  venueId: number
-): Promise<ActionState> {
-  try {
+export const deleteVenueAction = actionClient
+  .inputSchema(z.object({ venueId: z.number().int().positive() }))
+  .action(async ({ parsedInput: { venueId } }) => {
     await deleteVenue(venueId);
-    return null;
-  } catch (e) {
-    console.error('deleteVenueAction:', e);
-    return { error: 'Delete failed. Please try again.' };
-  }
-}
+  });

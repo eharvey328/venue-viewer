@@ -1,7 +1,8 @@
 'use client';
 
-import { useState, useMemo, useActionState, startTransition } from 'react';
+import { useState, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
+import { useAction } from 'next-safe-action/hooks';
 import { debounce } from 'lodash-es';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -47,16 +48,16 @@ export function VenueForm({ venueId, initialData }: VenueFormProps) {
   const isEditing = venueId !== undefined;
 
   const [mode, setMode] = useState<'search' | 'manual'>(initialData ? 'manual' : 'search');
-
   const [query, setQuery] = useState('');
   const [suggestions, setSuggestions] = useState<PlaceSuggestion[]>([]);
   const [searching, setSearching] = useState(false);
   const [selectedPlace, setSelectedPlace] = useState<PlaceData | null>(null);
   const [localError, setLocalError] = useState<string | null>(null);
 
-  const [state, dispatch, pending] = useActionState(saveVenue, null);
+  const { execute, isPending, result } = useAction(saveVenue);
 
-  const errorMessage = localError ?? state?.error ?? null;
+  const serverError = result.serverError ?? result.validationErrors?.name?._errors?.[0] ?? null;
+  const errorMessage = localError ?? serverError ?? null;
 
   const fetchSuggestions = useMemo(
     () =>
@@ -111,26 +112,24 @@ export function VenueForm({ venueId, initialData }: VenueFormProps) {
     const instagramUrl = (form.elements.namedItem('instagramUrl') as HTMLInputElement).value;
 
     if (mode === 'search' && selectedPlace) {
-      startTransition(() =>
-        dispatch({
-          venueId,
-          name: selectedPlace.name,
-          address: selectedPlace.address,
-          sleeps,
-          instagramUrl,
-          placeId: selectedPlace.placeId,
-          locality: selectedPlace.locality,
-          country: selectedPlace.country,
-          lat: selectedPlace.lat,
-          lng: selectedPlace.lng,
-          googleMapsUrl: selectedPlace.googleMapsUrl,
-          websiteUrl: selectedPlace.websiteUrl,
-        })
-      );
+      execute({
+        venueId,
+        name: selectedPlace.name,
+        address: selectedPlace.address,
+        sleeps,
+        instagramUrl,
+        placeId: selectedPlace.placeId,
+        locality: selectedPlace.locality,
+        country: selectedPlace.country,
+        lat: selectedPlace.lat,
+        lng: selectedPlace.lng,
+        googleMapsUrl: selectedPlace.googleMapsUrl,
+        websiteUrl: selectedPlace.websiteUrl,
+      });
     } else {
       const name = (form.elements.namedItem('manualName') as HTMLInputElement).value;
       const address = (form.elements.namedItem('manualAddress') as HTMLInputElement).value;
-      startTransition(() => dispatch({ venueId, name, address, sleeps, instagramUrl }));
+      execute({ venueId, name, address, sleeps, instagramUrl });
     }
   }
 
@@ -268,8 +267,8 @@ export function VenueForm({ venueId, initialData }: VenueFormProps) {
       </div>
 
       <div className="flex gap-3 pt-1">
-        <Button type="submit" disabled={pending} size="default">
-          {pending ? 'Saving…' : isEditing ? 'Save changes' : 'Add venue'}
+        <Button type="submit" disabled={isPending} size="default">
+          {isPending ? 'Saving…' : isEditing ? 'Save changes' : 'Add venue'}
         </Button>
         <Button type="button" variant="outline" onClick={() => router.back()}>
           Cancel
