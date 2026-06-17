@@ -13,6 +13,7 @@ interface PlacesResult {
   addressComponents?: AddressComponent[];
   location?: { latitude: number; longitude: number };
   googleMapsUri?: string;
+  websiteUri?: string;
 }
 
 function getComponent(components: AddressComponent[], type: string) {
@@ -33,7 +34,7 @@ export async function GET(request: NextRequest) {
         'Content-Type': 'application/json',
         'X-Goog-Api-Key': key,
         'X-Goog-FieldMask':
-          'places.id,places.displayName,places.formattedAddress,places.addressComponents,places.location,places.googleMapsUri',
+          'places.id,places.displayName,places.formattedAddress,places.addressComponents,places.location,places.googleMapsUri,places.websiteUri',
       },
       body: JSON.stringify({ textQuery: q, pageSize: 5 }),
     });
@@ -55,6 +56,7 @@ export async function GET(request: NextRequest) {
         lat: p.location?.latitude ?? null,
         lng: p.location?.longitude ?? null,
         googleMapsUrl: p.googleMapsUri ?? null,
+        websiteUrl: p.websiteUri ?? null,
       };
     });
 

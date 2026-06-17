@@ -35,6 +35,7 @@ export async function PUT(request: NextRequest, { params }: Params) {
         update.lat = typeof body.lat === 'number' ? body.lat : null;
         update.lng = typeof body.lng === 'number' ? body.lng : null;
         update.googleMapsUrl = body.googleMapsUrl ?? null;
+        update.websiteUrl = body.websiteUrl ?? null;
         update.googlePlaceId = body.googlePlaceId ?? null;
       } else {
         // Manual path: geocode

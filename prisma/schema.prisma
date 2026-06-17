@@ -18,6 +18,7 @@ model Venue {
   sleeps          Int?
   googleMapsUrl   String?
   googlePlaceId   String?
+  websiteUrl      String?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }

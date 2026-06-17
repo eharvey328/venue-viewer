@@ -13,6 +13,7 @@ interface PlaceSuggestion {
   lat: number | null;
   lng: number | null;
   googleMapsUrl: string | null;
+  websiteUrl: string | null;
 }
 
 interface PlaceData {
@@ -24,6 +25,7 @@ interface PlaceData {
   lat: number | null;
   lng: number | null;
   googleMapsUrl: string | null;
+  websiteUrl: string | null;
 }
 
 interface VenueFormProps {
@@ -90,6 +92,7 @@ export function VenueForm({ venueId, initialData }: VenueFormProps) {
       lat: p.lat,
       lng: p.lng,
       googleMapsUrl: p.googleMapsUrl,
+      websiteUrl: p.websiteUrl,
     });
     setQuery('');
     setSuggestions([]);
@@ -122,6 +125,7 @@ export function VenueForm({ venueId, initialData }: VenueFormProps) {
             lat: selectedPlace.lat,
             lng: selectedPlace.lng,
             googleMapsUrl: selectedPlace.googleMapsUrl,
+            websiteUrl: selectedPlace.websiteUrl,
             googlePlaceId: selectedPlace.placeId,
             sleeps: sleeps ? parseInt(sleeps) : null,
           }

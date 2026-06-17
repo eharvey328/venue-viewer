@@ -25,6 +25,7 @@ export async function POST(request: NextRequest) {
         lng: typeof body.lng === 'number' ? body.lng : null,
         sleeps,
         googleMapsUrl: body.googleMapsUrl,
+        websiteUrl: body.websiteUrl ?? null,
         googlePlaceId: body.googlePlaceId ?? null,
       });
       return NextResponse.json(venue, { status: 201 });

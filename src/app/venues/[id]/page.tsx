@@ -42,16 +42,28 @@ export default async function VenueDetailPage({ params }: Props) {
         </span>
       )}
 
-      {venue.googleMapsUrl && (
-        <a
-          href={venue.googleMapsUrl}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="mt-3 inline-block text-sm text-blue-600 hover:underline"
-        >
-          View on Google Maps →
-        </a>
-      )}
+      <div className="mt-3 flex flex-col gap-1">
+        {venue.websiteUrl && (
+          <a
+            href={venue.websiteUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-sm text-blue-600 hover:underline"
+          >
+            Visit website →
+          </a>
+        )}
+        {venue.googleMapsUrl && (
+          <a
+            href={venue.googleMapsUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-sm text-blue-600 hover:underline"
+          >
+            View on Google Maps →
+          </a>
+        )}
+      </div>
 
       {venue.lat != null && venue.lng != null && (
         <p className="mt-3 text-xs text-gray-400">
