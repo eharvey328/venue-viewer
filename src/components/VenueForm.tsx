@@ -47,7 +47,7 @@ export function VenueForm({ venueId, initialData }: VenueFormProps) {
   const isEditing = venueId !== undefined
 
   const [sleeps, setSleeps] = useState(initialData?.sleeps ?? '')
-  const [mode, setMode] = useState<'search' | 'manual'>('search')
+  const [mode, setMode] = useState<'search' | 'manual'>(initialData ? 'manual' : 'search')
 
   // Search path state
   const [query, setQuery] = useState('')
