@@ -1,39 +1,39 @@
-'use client'
+'use client';
 
-import { useEffect } from 'react'
-import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet'
-import L from 'leaflet'
-import 'leaflet/dist/leaflet.css'
-import Link from 'next/link'
+import { useEffect } from 'react';
+import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
+import L from 'leaflet';
+import 'leaflet/dist/leaflet.css';
+import Link from 'next/link';
 
 function useLeafletIconFix() {
   useEffect(() => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    delete (L.Icon.Default.prototype as any)._getIconUrl
+    delete (L.Icon.Default.prototype as any)._getIconUrl;
     L.Icon.Default.mergeOptions({
       iconRetinaUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png',
       iconUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png',
       shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
-    })
-  }, [])
+    });
+  }, []);
 }
 
 interface VenueMapVenue {
-  id: number
-  name: string
-  address: string | null
-  lat: number | null
-  lng: number | null
-  sleeps: number | null
+  id: number;
+  name: string;
+  address: string | null;
+  lat: number | null;
+  lng: number | null;
+  sleeps: number | null;
 }
 
 export default function VenueMap({ venues }: { venues: VenueMapVenue[] }) {
-  useLeafletIconFix()
+  useLeafletIconFix();
 
-  const mapped = venues.filter((v): v is VenueMapVenue & { lat: number; lng: number } =>
-    v.lat !== null && v.lng !== null
-  )
-  const unmappedCount = venues.length - mapped.length
+  const mapped = venues.filter(
+    (v): v is VenueMapVenue & { lat: number; lng: number } => v.lat !== null && v.lng !== null
+  );
+  const unmappedCount = venues.length - mapped.length;
 
   const center: [number, number] =
     mapped.length > 0
@@ -41,7 +41,7 @@ export default function VenueMap({ venues }: { venues: VenueMapVenue[] }) {
           mapped.reduce((sum, v) => sum + v.lat, 0) / mapped.length,
           mapped.reduce((sum, v) => sum + v.lng, 0) / mapped.length,
         ]
-      : [46.5, 2.5]
+      : [46.5, 2.5];
 
   return (
     <div className="relative">
@@ -81,5 +81,5 @@ export default function VenueMap({ venues }: { venues: VenueMapVenue[] }) {
         </p>
       )}
     </div>
-  )
+  );
 }

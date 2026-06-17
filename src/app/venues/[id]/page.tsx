@@ -1,19 +1,19 @@
-import { notFound } from 'next/navigation'
-import Link from 'next/link'
-import { getVenueById } from '@/lib/venues'
-import { DeleteButton } from '@/components/DeleteButton'
+import { notFound } from 'next/navigation';
+import Link from 'next/link';
+import { getVenueById } from '@/lib/venues';
+import { DeleteButton } from '@/components/DeleteButton';
 
 interface Props {
-  params: Promise<{ id: string }>
+  params: Promise<{ id: string }>;
 }
 
 export default async function VenueDetailPage({ params }: Props) {
-  const { id: idStr } = await params
-  const id = parseInt(idStr)
-  if (isNaN(id)) notFound()
+  const { id: idStr } = await params;
+  const id = parseInt(idStr);
+  if (isNaN(id)) notFound();
 
-  const venue = await getVenueById(id)
-  if (!venue) notFound()
+  const venue = await getVenueById(id);
+  if (!venue) notFound();
 
   return (
     <div className="mx-auto max-w-lg">
@@ -34,9 +34,7 @@ export default async function VenueDetailPage({ params }: Props) {
         </div>
       </div>
 
-      {venue.address && (
-        <p className="mt-2 text-gray-500">{venue.address}</p>
-      )}
+      {venue.address && <p className="mt-2 text-gray-500">{venue.address}</p>}
 
       {venue.sleeps != null && (
         <span className="mt-3 inline-block rounded-full bg-blue-50 px-3 py-1 text-sm font-medium text-blue-700">
@@ -61,5 +59,5 @@ export default async function VenueDetailPage({ params }: Props) {
         </p>
       )}
     </div>
-  )
+  );
 }

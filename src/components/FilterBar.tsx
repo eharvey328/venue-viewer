@@ -1,53 +1,50 @@
-'use client'
+'use client';
 
-import { useRouter, usePathname } from 'next/navigation'
-import { useCallback } from 'react'
+import { useRouter, usePathname } from 'next/navigation';
+import { useCallback } from 'react';
+import { xor } from 'lodash-es';
 import {
   KNOWN_COUNTRIES,
   serializeFiltersToParams,
   type VenueFilters,
   type SortOption,
   type ViewOption,
-} from '@/lib/filters'
+} from '@/lib/filters';
 
 const SORT_OPTIONS: { value: SortOption; label: string }[] = [
   { value: 'name_asc', label: 'Name A–Z' },
   { value: 'name_desc', label: 'Name Z–A' },
   { value: 'sleeps_asc', label: 'Sleeps ↑' },
   { value: 'sleeps_desc', label: 'Sleeps ↓' },
-]
+];
 
 interface FilterBarProps {
-  filters: VenueFilters
-  totalCount: number
+  filters: VenueFilters;
+  totalCount: number;
 }
 
 export function FilterBar({ filters, totalCount }: FilterBarProps) {
-  const router = useRouter()
-  const pathname = usePathname()
+  const router = useRouter();
+  const pathname = usePathname();
 
   const update = useCallback(
     (updates: Partial<VenueFilters>) => {
-      const next = { ...filters, ...updates }
-      const qs = serializeFiltersToParams(next)
-      router.push(qs ? `${pathname}?${qs}` : pathname)
+      const next = { ...filters, ...updates };
+      const qs = serializeFiltersToParams(next);
+      router.push(qs ? `${pathname}?${qs}` : pathname);
     },
     [filters, pathname, router]
-  )
+  );
 
   function toggleCountry(country: string) {
-    const next = filters.countries.includes(country)
-      ? filters.countries.filter((c) => c !== country)
-      : [...filters.countries, country]
-    update({ countries: next })
+    update({ countries: xor(filters.countries, [country]) });
   }
 
   function setView(view: ViewOption) {
-    update({ view })
+    update({ view });
   }
 
-  const hasFilters =
-    filters.countries.length > 0 || filters.sleepsMin !== null
+  const hasFilters = filters.countries.length > 0 || filters.sleepsMin !== null;
 
   return (
     <div className="space-y-3">
@@ -89,9 +86,7 @@ export function FilterBar({ filters, totalCount }: FilterBarProps) {
           min={0}
           placeholder="Min sleeps"
           value={filters.sleepsMin ?? ''}
-          onChange={(e) =>
-            update({ sleepsMin: e.target.value ? parseInt(e.target.value) : null })
-          }
+          onChange={(e) => update({ sleepsMin: e.target.value ? parseInt(e.target.value) : null })}
           className="w-28 rounded-full border border-gray-200 bg-gray-100 px-3 py-1 text-sm text-gray-700 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
         />
 
@@ -102,7 +97,9 @@ export function FilterBar({ filters, totalCount }: FilterBarProps) {
             className="rounded-full border border-gray-200 bg-gray-100 px-3 py-1 text-sm text-gray-700 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
           >
             {SORT_OPTIONS.map((o) => (
-              <option key={o.value} value={o.value}>{o.label}</option>
+              <option key={o.value} value={o.value}>
+                {o.label}
+              </option>
             ))}
           </select>
         )}
@@ -112,7 +109,9 @@ export function FilterBar({ filters, totalCount }: FilterBarProps) {
         </span>
         {hasFilters && (
           <button
-            onClick={() => router.push(pathname + (filters.view !== 'list' ? `?view=${filters.view}` : ''))}
+            onClick={() =>
+              router.push(pathname + (filters.view !== 'list' ? `?view=${filters.view}` : ''))
+            }
             className="text-sm text-blue-600 hover:underline"
           >
             Clear
@@ -120,5 +119,5 @@ export function FilterBar({ filters, totalCount }: FilterBarProps) {
         )}
       </div>
     </div>
-  )
+  );
 }

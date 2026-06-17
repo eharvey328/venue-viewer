@@ -1,27 +1,31 @@
-import { Prisma } from '@/generated/prisma/client'
-import { prisma } from './db'
-import type { VenueFilters, SortOption } from './filters'
+import { Prisma } from '@/generated/prisma/client';
+import { prisma } from './db';
+import type { VenueFilters, SortOption } from './filters';
 
 function buildOrderBy(sort: SortOption): Prisma.VenueOrderByWithRelationInput {
   switch (sort) {
-    case 'name_asc':    return { name: 'asc' }
-    case 'name_desc':   return { name: 'desc' }
-    case 'sleeps_asc':  return { sleeps: { sort: 'asc', nulls: 'last' } }
-    case 'sleeps_desc': return { sleeps: { sort: 'desc', nulls: 'last' } }
+    case 'name_asc':
+      return { name: 'asc' };
+    case 'name_desc':
+      return { name: 'desc' };
+    case 'sleeps_asc':
+      return { sleeps: { sort: 'asc', nulls: 'last' } };
+    case 'sleeps_desc':
+      return { sleeps: { sort: 'desc', nulls: 'last' } };
   }
 }
 
 export async function getVenues(filters: VenueFilters) {
-  const where: Prisma.VenueWhereInput = {}
+  const where: Prisma.VenueWhereInput = {};
 
   if (filters.countries.length > 0) {
     where.OR = filters.countries.map((c) => ({
       country: { contains: c, mode: 'insensitive' as const },
-    }))
+    }));
   }
 
   if (filters.sleepsMin !== null) {
-    where.sleeps = { gte: filters.sleepsMin }
+    where.sleeps = { gte: filters.sleepsMin };
   }
 
   return prisma.venue.findMany({
@@ -38,44 +42,44 @@ export async function getVenues(filters: VenueFilters) {
       sleeps: true,
       googleMapsUrl: true,
     },
-  })
+  });
 }
 
 export async function getVenueById(id: number) {
-  return prisma.venue.findUnique({ where: { id } })
+  return prisma.venue.findUnique({ where: { id } });
 }
 
 export async function createVenue(data: {
-  name: string
-  address?: string | null
-  locality?: string | null
-  country?: string | null
-  lat?: number | null
-  lng?: number | null
-  sleeps?: number | null
-  googleMapsUrl?: string | null
-  googlePlaceId?: string | null
+  name: string;
+  address?: string | null;
+  locality?: string | null;
+  country?: string | null;
+  lat?: number | null;
+  lng?: number | null;
+  sleeps?: number | null;
+  googleMapsUrl?: string | null;
+  googlePlaceId?: string | null;
 }) {
-  return prisma.venue.create({ data })
+  return prisma.venue.create({ data });
 }
 
 export async function updateVenue(
   id: number,
   data: {
-    name?: string
-    address?: string | null
-    locality?: string | null
-    country?: string | null
-    lat?: number | null
-    lng?: number | null
-    sleeps?: number | null
-    googleMapsUrl?: string | null
-    googlePlaceId?: string | null
+    name?: string;
+    address?: string | null;
+    locality?: string | null;
+    country?: string | null;
+    lat?: number | null;
+    lng?: number | null;
+    sleeps?: number | null;
+    googleMapsUrl?: string | null;
+    googlePlaceId?: string | null;
   }
 ) {
-  return prisma.venue.update({ where: { id }, data })
+  return prisma.venue.update({ where: { id }, data });
 }
 
 export async function deleteVenue(id: number) {
-  return prisma.venue.delete({ where: { id } })
+  return prisma.venue.delete({ where: { id } });
 }

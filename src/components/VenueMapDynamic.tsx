@@ -1,7 +1,7 @@
-'use client'
+'use client';
 
-import dynamic from 'next/dynamic'
+import dynamic from 'next/dynamic';
 
-const VenueMap = dynamic(() => import('@/components/VenueMap'), { ssr: false })
+const VenueMap = dynamic(() => import('@/components/VenueMap'), { ssr: false });
 
-export { VenueMap as VenueMapDynamic }
+export { VenueMap as VenueMapDynamic };

@@ -1,11 +1,11 @@
-import { VenueCard } from './VenueCard'
+import { VenueCard } from './VenueCard';
 
 interface Venue {
-  id: number
-  name: string
-  locality: string | null
-  country: string | null
-  sleeps: number | null
+  id: number;
+  name: string;
+  locality: string | null;
+  country: string | null;
+  sleeps: number | null;
 }
 
 export function VenueList({ venues }: { venues: Venue[] }) {
@@ -15,7 +15,7 @@ export function VenueList({ venues }: { venues: Venue[] }) {
         <p className="text-lg font-medium">No venues match these filters</p>
         <p className="mt-1 text-sm">Try adjusting or clearing filters</p>
       </div>
-    )
+    );
   }
 
   return (
@@ -24,5 +24,5 @@ export function VenueList({ venues }: { venues: Venue[] }) {
         <VenueCard key={v.id} {...v} />
       ))}
     </div>
-  )
+  );
 }

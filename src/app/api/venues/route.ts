@@ -1,18 +1,18 @@
-import { NextRequest, NextResponse } from 'next/server'
-import { createVenue } from '@/lib/venues'
-import { geocode } from '@/lib/geocode'
+import { NextRequest, NextResponse } from 'next/server';
+import { createVenue } from '@/lib/venues';
+import { geocode } from '@/lib/geocode';
 
 export async function POST(request: NextRequest) {
   try {
-    const body = await request.json()
+    const body = await request.json();
 
     if (!body.name?.trim()) {
-      return NextResponse.json({ error: 'Name is required' }, { status: 400 })
+      return NextResponse.json({ error: 'Name is required' }, { status: 400 });
     }
 
-    const name = body.name.trim()
-    const address = body.address?.trim() || null
-    const sleeps = typeof body.sleeps === 'number' ? body.sleeps : null
+    const name = body.name.trim();
+    const address = body.address?.trim() || null;
+    const sleeps = typeof body.sleeps === 'number' ? body.sleeps : null;
 
     // If client already resolved via Places API, use that data directly
     if (body.googleMapsUrl) {
@@ -26,12 +26,12 @@ export async function POST(request: NextRequest) {
         sleeps,
         googleMapsUrl: body.googleMapsUrl,
         googlePlaceId: body.googlePlaceId ?? null,
-      })
-      return NextResponse.json(venue, { status: 201 })
+      });
+      return NextResponse.json(venue, { status: 201 });
     }
 
     // Manual path: geocode the address
-    const coords = address ? await geocode(address) : null
+    const coords = address ? await geocode(address) : null;
     const venue = await createVenue({
       name,
       address,
@@ -41,11 +41,11 @@ export async function POST(request: NextRequest) {
       lng: coords?.lng ?? null,
       sleeps,
       googleMapsUrl: null,
-    })
+    });
 
-    return NextResponse.json(venue, { status: 201 })
+    return NextResponse.json(venue, { status: 201 });
   } catch (e) {
-    console.error('POST /api/venues:', e)
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
+    console.error('POST /api/venues:', e);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

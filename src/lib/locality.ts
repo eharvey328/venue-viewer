@@ -4,5 +4,5 @@ export function extractLocality(getComponent: (type: string) => string | null): 
     getComponent('administrative_area_level_2') ??
     getComponent('locality') ??
     getComponent('postal_town')
-  )
+  );
 }

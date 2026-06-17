@@ -1,4 +1,4 @@
-import { VenueForm } from '@/components/VenueForm'
+import { VenueForm } from '@/components/VenueForm';
 
 export default function NewVenuePage() {
   return (
@@ -6,5 +6,5 @@ export default function NewVenuePage() {
       <h1 className="text-2xl font-bold text-gray-900 mb-6">Add Venue</h1>
       <VenueForm />
     </div>
-  )
+  );
 }

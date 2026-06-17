@@ -1,14 +1,14 @@
-import type { Metadata } from 'next'
-import { Geist } from 'next/font/google'
-import './globals.css'
-import Link from 'next/link'
+import type { Metadata } from 'next';
+import { Geist } from 'next/font/google';
+import './globals.css';
+import Link from 'next/link';
 
-const geist = Geist({ subsets: ['latin'] })
+const geist = Geist({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
   title: 'Venue Viewer',
   description: 'Browse European wedding venues',
-}
+};
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
@@ -30,5 +30,5 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <main className="mx-auto max-w-5xl px-4 py-5">{children}</main>
       </body>
     </html>
-  )
+  );
 }

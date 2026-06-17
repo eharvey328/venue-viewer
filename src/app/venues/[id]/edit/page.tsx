@@ -1,18 +1,18 @@
-import { notFound } from 'next/navigation'
-import { getVenueById } from '@/lib/venues'
-import { VenueForm } from '@/components/VenueForm'
+import { notFound } from 'next/navigation';
+import { getVenueById } from '@/lib/venues';
+import { VenueForm } from '@/components/VenueForm';
 
 interface Props {
-  params: Promise<{ id: string }>
+  params: Promise<{ id: string }>;
 }
 
 export default async function EditVenuePage({ params }: Props) {
-  const { id: idStr } = await params
-  const id = parseInt(idStr)
-  if (isNaN(id)) notFound()
+  const { id: idStr } = await params;
+  const id = parseInt(idStr);
+  if (isNaN(id)) notFound();
 
-  const venue = await getVenueById(id)
-  if (!venue) notFound()
+  const venue = await getVenueById(id);
+  if (!venue) notFound();
 
   return (
     <div className="mx-auto max-w-lg">
@@ -26,5 +26,5 @@ export default async function EditVenuePage({ params }: Props) {
         }}
       />
     </div>
-  )
+  );
 }

@@ -1,87 +1,84 @@
-'use client'
+'use client';
 
-import { useState, useEffect, useRef } from 'react'
-import { useRouter } from 'next/navigation'
+import { useState, useMemo } from 'react';
+import { useRouter } from 'next/navigation';
+import { debounce } from 'lodash-es';
 
 interface PlaceSuggestion {
-  placeId: string
-  displayName: string | null
-  formattedAddress: string | null
-  locality: string | null
-  country: string | null
-  lat: number | null
-  lng: number | null
-  googleMapsUrl: string | null
+  placeId: string;
+  displayName: string | null;
+  formattedAddress: string | null;
+  locality: string | null;
+  country: string | null;
+  lat: number | null;
+  lng: number | null;
+  googleMapsUrl: string | null;
 }
 
 interface PlaceData {
-  placeId: string
-  name: string
-  address: string
-  locality: string | null
-  country: string | null
-  lat: number | null
-  lng: number | null
-  googleMapsUrl: string | null
+  placeId: string;
+  name: string;
+  address: string;
+  locality: string | null;
+  country: string | null;
+  lat: number | null;
+  lng: number | null;
+  googleMapsUrl: string | null;
 }
 
 interface VenueFormProps {
-  venueId?: number
+  venueId?: number;
   initialData?: {
-    name?: string
-    address?: string
-    sleeps?: string
-  }
+    name?: string;
+    address?: string;
+    sleeps?: string;
+  };
 }
 
 function inputClass() {
-  return 'w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500'
+  return 'w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500';
 }
 
 function labelClass() {
-  return 'block text-sm font-medium text-gray-700 mb-1'
+  return 'block text-sm font-medium text-gray-700 mb-1';
 }
 
 export function VenueForm({ venueId, initialData }: VenueFormProps) {
-  const router = useRouter()
-  const isEditing = venueId !== undefined
+  const router = useRouter();
+  const isEditing = venueId !== undefined;
 
-  const [sleeps, setSleeps] = useState(initialData?.sleeps ?? '')
-  const [mode, setMode] = useState<'search' | 'manual'>(initialData ? 'manual' : 'search')
+  const [sleeps, setSleeps] = useState(initialData?.sleeps ?? '');
+  const [mode, setMode] = useState<'search' | 'manual'>(initialData ? 'manual' : 'search');
 
   // Search path state
-  const [query, setQuery] = useState('')
-  const [suggestions, setSuggestions] = useState<PlaceSuggestion[]>([])
-  const [searching, setSearching] = useState(false)
-  const [selectedPlace, setSelectedPlace] = useState<PlaceData | null>(null)
-  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const [query, setQuery] = useState('');
+  const [suggestions, setSuggestions] = useState<PlaceSuggestion[]>([]);
+  const [searching, setSearching] = useState(false);
+  const [selectedPlace, setSelectedPlace] = useState<PlaceData | null>(null);
 
   // Manual path state
-  const [manualName, setManualName] = useState(initialData?.name ?? '')
-  const [manualAddress, setManualAddress] = useState(initialData?.address ?? '')
+  const [manualName, setManualName] = useState(initialData?.name ?? '');
+  const [manualAddress, setManualAddress] = useState(initialData?.address ?? '');
 
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState<string | null>(null)
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    if (mode !== 'search' || query.length < 2) {
-      setSuggestions([])
-      return
-    }
-    if (debounceRef.current) clearTimeout(debounceRef.current)
-    debounceRef.current = setTimeout(async () => {
-      setSearching(true)
-      try {
-        const res = await fetch(`/api/places/search?q=${encodeURIComponent(query)}`)
-        const data = await res.json() as PlaceSuggestion[]
-        setSuggestions(Array.isArray(data) ? data : [])
-      } catch {
-        setSuggestions([])
-      } finally {
-        setSearching(false)
-      }
-    }, 300)
-  }, [query, mode])
+  const fetchSuggestions = useMemo(
+    () =>
+      debounce(async (q: string) => {
+        setSearching(true);
+        try {
+          const res = await fetch(`/api/places/search?q=${encodeURIComponent(q)}`);
+          const data = (await res.json()) as PlaceSuggestion[];
+          setSuggestions(Array.isArray(data) ? data : []);
+        } catch {
+          setSuggestions([]);
+        } finally {
+          setSearching(false);
+        }
+      }, 300),
+    []
+  );
 
   function selectPlace(p: PlaceSuggestion) {
     setSelectedPlace({
@@ -93,24 +90,27 @@ export function VenueForm({ venueId, initialData }: VenueFormProps) {
       lat: p.lat,
       lng: p.lng,
       googleMapsUrl: p.googleMapsUrl,
-    })
-    setQuery('')
-    setSuggestions([])
+    });
+    setQuery('');
+    setSuggestions([]);
   }
 
   function clearPlace() {
-    setSelectedPlace(null)
-    setQuery('')
+    setSelectedPlace(null);
+    setQuery('');
   }
 
-  async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault()
+  async function handleSubmit(e: React.SyntheticEvent<HTMLFormElement>) {
+    e.preventDefault();
 
-    const nameValue = mode === 'search' ? selectedPlace?.name : manualName.trim()
-    if (!nameValue) { setError('Name is required'); return }
+    const nameValue = mode === 'search' ? selectedPlace?.name : manualName.trim();
+    if (!nameValue) {
+      setError('Name is required');
+      return;
+    }
 
-    setLoading(true)
-    setError(null)
+    setLoading(true);
+    setError(null);
 
     const payload =
       mode === 'search' && selectedPlace
@@ -129,7 +129,7 @@ export function VenueForm({ venueId, initialData }: VenueFormProps) {
             name: manualName.trim(),
             address: manualAddress.trim() || null,
             sleeps: sleeps ? parseInt(sleeps) : null,
-          }
+          };
 
     try {
       const res = isEditing
@@ -142,34 +142,38 @@ export function VenueForm({ venueId, initialData }: VenueFormProps) {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(payload),
-          })
+          });
 
       if (!res.ok) {
-        const body = await res.json().catch(() => ({}))
-        throw new Error((body as { error?: string }).error ?? 'Request failed')
+        const body = await res.json().catch(() => ({}));
+        throw new Error((body as { error?: string }).error ?? 'Request failed');
       }
 
-      const venue = await res.json() as { id: number }
-      router.push(`/venues/${venue.id}`)
-      router.refresh()
+      const venue = (await res.json()) as { id: number };
+      router.push(`/venues/${venue.id}`);
+      router.refresh();
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Something went wrong')
-      setLoading(false)
+      setError(err instanceof Error ? err.message : 'Something went wrong');
+      setLoading(false);
     }
   }
 
   return (
     <form onSubmit={handleSubmit} className="space-y-5">
-      {error && (
-        <div className="rounded-lg bg-red-50 p-3 text-sm text-red-700">{error}</div>
-      )}
+      {error && <div className="rounded-lg bg-red-50 p-3 text-sm text-red-700">{error}</div>}
 
       <div>
         <div className="flex items-center justify-between mb-1">
           <label className={labelClass().replace(' mb-1', '')}>Place</label>
           <button
             type="button"
-            onClick={() => { setMode(mode === 'search' ? 'manual' : 'search'); setSelectedPlace(null); setQuery('') }}
+            onClick={() => {
+              setMode(mode === 'search' ? 'manual' : 'search');
+              setSelectedPlace(null);
+              setQuery('');
+              setSuggestions([]);
+              fetchSuggestions.cancel();
+            }}
             className="text-xs text-blue-600 hover:underline"
           >
             {mode === 'search' ? 'Enter manually instead' : 'Search Google Places instead'}
@@ -183,7 +187,11 @@ export function VenueForm({ venueId, initialData }: VenueFormProps) {
                 <div className="font-medium text-green-900">{selectedPlace.name}</div>
                 <div className="text-green-700 text-xs mt-0.5">{selectedPlace.address}</div>
               </div>
-              <button type="button" onClick={clearPlace} className="ml-3 text-green-600 hover:text-green-800 flex-shrink-0 mt-0.5">
+              <button
+                type="button"
+                onClick={clearPlace}
+                className="ml-3 text-green-600 hover:text-green-800 shrink-0 mt-0.5"
+              >
                 ✕
               </button>
             </div>
@@ -192,7 +200,14 @@ export function VenueForm({ venueId, initialData }: VenueFormProps) {
               <input
                 type="text"
                 value={query}
-                onChange={(e) => setQuery(e.target.value)}
+                onChange={(e) => {
+                  const val = e.target.value;
+                  setQuery(val);
+                  if (val.length < 2) {
+                    setSuggestions([]);
+                    fetchSuggestions.cancel();
+                  } else fetchSuggestions(val);
+                }}
                 className={inputClass()}
                 placeholder="Search for a venue…"
                 autoComplete="off"
@@ -269,5 +284,5 @@ export function VenueForm({ venueId, initialData }: VenueFormProps) {
         </button>
       </div>
     </form>
-  )
+  );
 }
