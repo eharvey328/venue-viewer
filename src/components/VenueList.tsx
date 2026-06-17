@@ -21,8 +21,8 @@ export function VenueList({ venues }: { venues: Venue[] }) {
 
   return (
     <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
-      {venues.map((v) => (
-        <VenueCard key={v.id} {...v} />
+      {venues.map((v, i) => (
+        <VenueCard key={v.id} {...v} priority={i < 3} />
       ))}
     </div>
   );

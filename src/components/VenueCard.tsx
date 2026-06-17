@@ -8,9 +8,10 @@ interface VenueCardProps {
   country: string | null;
   sleeps: number | null;
   photoUrl: string | null;
+  priority?: boolean;
 }
 
-export function VenueCard({ id, name, locality, country, sleeps, photoUrl }: VenueCardProps) {
+export function VenueCard({ id, name, locality, country, sleeps, photoUrl, priority }: VenueCardProps) {
   const location = [locality, country].filter(Boolean).join(', ');
   return (
     <Link
@@ -25,6 +26,8 @@ export function VenueCard({ id, name, locality, country, sleeps, photoUrl }: Ven
             fill
             className="object-cover"
             sizes="(max-width: 768px) 100vw, 33vw"
+            priority={priority}
+            loading={priority ? 'eager' : 'lazy'}
           />
         </div>
       ) : (
