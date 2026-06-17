@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useMemo, useActionState } from 'react';
+import { useState, useMemo, useActionState, startTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import { debounce } from 'lodash-es';
 import { Button } from '@/components/ui/button';
@@ -111,25 +111,26 @@ export function VenueForm({ venueId, initialData }: VenueFormProps) {
     const instagramUrl = (form.elements.namedItem('instagramUrl') as HTMLInputElement).value;
 
     if (mode === 'search' && selectedPlace) {
-      dispatch({
-        kind: 'search',
-        venueId,
-        placeId: selectedPlace.placeId,
-        name: selectedPlace.name,
-        address: selectedPlace.address,
-        locality: selectedPlace.locality,
-        country: selectedPlace.country,
-        lat: selectedPlace.lat,
-        lng: selectedPlace.lng,
-        googleMapsUrl: selectedPlace.googleMapsUrl,
-        websiteUrl: selectedPlace.websiteUrl,
-        sleeps,
-        instagramUrl,
-      });
+      startTransition(() =>
+        dispatch({
+          venueId,
+          name: selectedPlace.name,
+          address: selectedPlace.address,
+          sleeps,
+          instagramUrl,
+          placeId: selectedPlace.placeId,
+          locality: selectedPlace.locality,
+          country: selectedPlace.country,
+          lat: selectedPlace.lat,
+          lng: selectedPlace.lng,
+          googleMapsUrl: selectedPlace.googleMapsUrl,
+          websiteUrl: selectedPlace.websiteUrl,
+        })
+      );
     } else {
       const name = (form.elements.namedItem('manualName') as HTMLInputElement).value;
       const address = (form.elements.namedItem('manualAddress') as HTMLInputElement).value;
-      dispatch({ kind: 'manual', venueId, name, address, sleeps, instagramUrl });
+      startTransition(() => dispatch({ venueId, name, address, sleeps, instagramUrl }));
     }
   }
 
