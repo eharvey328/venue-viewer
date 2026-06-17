@@ -6,6 +6,7 @@ interface Venue {
   locality: string | null;
   country: string | null;
   sleeps: number | null;
+  photoUrl: string | null;
 }
 
 export function VenueList({ venues }: { venues: Venue[] }) {

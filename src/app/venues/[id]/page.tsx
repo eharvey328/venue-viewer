@@ -1,5 +1,6 @@
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
+import Image from 'next/image';
 import { getVenueById } from '@/lib/venues';
 import { DeleteButton } from '@/components/DeleteButton';
 import { buttonVariants } from '@/components/ui/button';
@@ -21,6 +22,19 @@ export default async function VenueDetailPage({ params }: Props) {
       <Link href="/" className="text-sm text-gray-500 hover:text-gray-900">
         ← Back
       </Link>
+
+      {venue.photoUrl && (
+        <div className="relative mt-4 h-64 w-full overflow-hidden rounded-xl bg-gray-100">
+          <Image
+            src={venue.photoUrl}
+            alt={venue.name}
+            fill
+            className="object-cover"
+            sizes="(max-width: 768px) 100vw, 512px"
+            priority
+          />
+        </div>
+      )}
 
       <div className="mt-4 flex items-start justify-between gap-3">
         <h1 className="text-2xl font-bold text-gray-900 leading-tight">{venue.name}</h1>

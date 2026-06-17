@@ -5,6 +5,7 @@ import { redirect } from 'next/navigation';
 import { isRedirectError } from 'next/dist/client/components/redirect-error';
 import { createVenue, updateVenue, getVenueById } from '@/lib/venues';
 import { geocode } from '@/lib/geocode';
+import { fetchAndUploadPhoto } from '@/lib/photo';
 import { actionClient } from '@/lib/safe-action';
 
 const saveVenueSchema = z.object({
@@ -21,6 +22,7 @@ const saveVenueSchema = z.object({
   lng: z.number().nullable().optional(),
   googleMapsUrl: z.string().nullable().optional(),
   websiteUrl: z.string().nullable().optional(),
+  photoName: z.string().nullable().optional(),
 });
 
 export const saveVenue = actionClient
@@ -33,6 +35,7 @@ export const saveVenue = actionClient
       sleeps: rawSleeps,
       instagramUrl: rawInstagram,
       placeId,
+      photoName,
     } = parsedInput;
 
     const address = rawAddress.trim() || null;
@@ -47,6 +50,7 @@ export const saveVenue = actionClient
     let googleMapsUrl: string | null = null;
     let googlePlaceId: string | null = null;
     let websiteUrl: string | null = null;
+    let photoUrl: string | null = null;
 
     try {
       if (placeId) {
@@ -57,6 +61,9 @@ export const saveVenue = actionClient
         googleMapsUrl = parsedInput.googleMapsUrl ?? null;
         googlePlaceId = placeId;
         websiteUrl = parsedInput.websiteUrl ?? null;
+        if (photoName) {
+          photoUrl = await fetchAndUploadPhoto(photoName, name.trim());
+        }
       } else if (venueId) {
         const existing = await getVenueById(venueId);
         const existingAddress = existing?.address?.trim() || null;
@@ -69,6 +76,7 @@ export const saveVenue = actionClient
           googleMapsUrl = existing?.googleMapsUrl ?? null;
           googlePlaceId = existing?.googlePlaceId ?? null;
           websiteUrl = existing?.websiteUrl ?? null;
+          photoUrl = existing?.photoUrl ?? null;
         } else if (address) {
           const coords = await geocode(address);
           locality = coords?.locality ?? null;
@@ -94,6 +102,7 @@ export const saveVenue = actionClient
         googleMapsUrl,
         googlePlaceId,
         websiteUrl,
+        photoUrl,
         sleeps: parsedSleeps,
         instagramUrl,
       };

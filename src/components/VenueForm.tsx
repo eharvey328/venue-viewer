@@ -19,6 +19,7 @@ interface PlaceSuggestion {
   lng: number | null;
   googleMapsUrl: string | null;
   websiteUrl: string | null;
+  photoName: string | null;
 }
 
 interface PlaceData {
@@ -31,6 +32,7 @@ interface PlaceData {
   lng: number | null;
   googleMapsUrl: string | null;
   websiteUrl: string | null;
+  photoName: string | null;
 }
 
 interface VenueFormProps {
@@ -87,6 +89,7 @@ export function VenueForm({ venueId, initialData }: VenueFormProps) {
       lng: p.lng,
       googleMapsUrl: p.googleMapsUrl,
       websiteUrl: p.websiteUrl,
+      photoName: p.photoName,
     });
     setQuery('');
     setSuggestions([]);
@@ -125,6 +128,7 @@ export function VenueForm({ venueId, initialData }: VenueFormProps) {
         lng: selectedPlace.lng,
         googleMapsUrl: selectedPlace.googleMapsUrl,
         websiteUrl: selectedPlace.websiteUrl,
+        photoName: selectedPlace.photoName,
       });
     } else {
       const name = (form.elements.namedItem('manualName') as HTMLInputElement).value;
