@@ -141,7 +141,7 @@ export function VenueForm({ venueId, initialData }: VenueFormProps) {
 
       <div>
         <div className="flex items-center justify-between mb-1">
-          <Label>Place</Label>
+          {mode === 'search' && <Label>Place</Label>}
           <Button
             type="button"
             variant="link"

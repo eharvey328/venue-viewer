@@ -24,7 +24,7 @@ export default async function VenueDetailPage({ params }: Props) {
 
       <div className="mt-4 flex items-start justify-between gap-3">
         <h1 className="text-2xl font-bold text-gray-900 leading-tight">{venue.name}</h1>
-        <div className="flex gap-2 flex-shrink-0">
+        <div className="flex gap-2 shrink-0">
           <Link
             href={`/venues/${venue.id}/edit`}
             className={buttonVariants({ variant: 'outline', size: 'sm' })}
@@ -75,12 +75,6 @@ export default async function VenueDetailPage({ params }: Props) {
           </a>
         )}
       </div>
-
-      {venue.lat != null && venue.lng != null && (
-        <p className="mt-3 text-xs text-gray-400">
-          {venue.lat.toFixed(4)}, {venue.lng.toFixed(4)}
-        </p>
-      )}
     </div>
   );
 }
