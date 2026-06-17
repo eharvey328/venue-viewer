@@ -2,6 +2,7 @@
 
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
+import { Button } from '@/components/ui/button';
 
 export function DeleteButton({ venueId, venueName }: { venueId: number; venueName: string }) {
   const router = useRouter();
@@ -22,12 +23,8 @@ export function DeleteButton({ venueId, venueName }: { venueId: number; venueNam
   }
 
   return (
-    <button
-      onClick={handleDelete}
-      disabled={loading}
-      className="rounded-lg border border-red-300 px-3 py-1.5 text-sm font-medium text-red-600 hover:bg-red-50 transition-colors disabled:opacity-50"
-    >
+    <Button variant="destructive" size="sm" onClick={handleDelete} disabled={loading}>
       {loading ? 'Deleting…' : 'Delete'}
-    </button>
+    </Button>
   );
 }

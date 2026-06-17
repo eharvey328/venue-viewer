@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { Geist } from 'next/font/google';
 import './globals.css';
 import Link from 'next/link';
+import { buttonVariants } from '@/components/ui/button';
 
 const geist = Geist({ subsets: ['latin'] });
 
@@ -19,10 +20,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             <Link href="/" className="text-lg font-bold text-gray-900">
               Venue Viewer
             </Link>
-            <Link
-              href="/venues/new"
-              className="rounded-lg bg-blue-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-blue-700 transition-colors"
-            >
+            <Link href="/venues/new" className={buttonVariants({ size: 'sm' })}>
               + Add Venue
             </Link>
           </div>

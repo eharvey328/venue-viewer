@@ -2,6 +2,7 @@ import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import { getVenueById } from '@/lib/venues';
 import { DeleteButton } from '@/components/DeleteButton';
+import { buttonVariants } from '@/components/ui/button';
 
 interface Props {
   params: Promise<{ id: string }>;
@@ -26,7 +27,7 @@ export default async function VenueDetailPage({ params }: Props) {
         <div className="flex gap-2 flex-shrink-0">
           <Link
             href={`/venues/${venue.id}/edit`}
-            className="rounded-lg border border-gray-300 px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-50"
+            className={buttonVariants({ variant: 'outline', size: 'sm' })}
           >
             Edit
           </Link>

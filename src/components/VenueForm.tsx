@@ -4,6 +4,9 @@ import { useState, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { debounce } from 'lodash-es';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 
 interface PlaceSuggestion {
   placeId: string;
@@ -46,10 +49,7 @@ interface VenueFormProps {
   };
 }
 
-const INPUT_CLASS =
-  'w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500';
-const LABEL_CLASS = 'block text-sm font-medium text-gray-700 mb-1';
-const ERROR_CLASS = 'mt-1 text-xs text-red-600';
+const ERROR_CLASS = 'mt-1 text-xs text-destructive';
 
 export function VenueForm({ venueId, initialData }: VenueFormProps) {
   const router = useRouter();
@@ -176,9 +176,11 @@ export function VenueForm({ venueId, initialData }: VenueFormProps) {
 
       <div>
         <div className="flex items-center justify-between mb-1">
-          <label className={LABEL_CLASS.replace(' mb-1', '')}>Place</label>
-          <button
+          <Label>Place</Label>
+          <Button
             type="button"
+            variant="link"
+            size="xs"
             onClick={() => {
               setMode(mode === 'search' ? 'manual' : 'search');
               setSelectedPlace(null);
@@ -187,10 +189,10 @@ export function VenueForm({ venueId, initialData }: VenueFormProps) {
               fetchSuggestions.cancel();
               clearErrors('root');
             }}
-            className="text-xs text-blue-600 hover:underline"
+            className="h-auto p-0 text-xs"
           >
             {mode === 'search' ? 'Enter manually instead' : 'Search Google Places instead'}
-          </button>
+          </Button>
         </div>
 
         {mode === 'search' ? (
@@ -210,7 +212,7 @@ export function VenueForm({ venueId, initialData }: VenueFormProps) {
             </div>
           ) : (
             <div className="relative">
-              <input
+              <Input
                 type="text"
                 value={query}
                 onChange={(e) => {
@@ -221,7 +223,7 @@ export function VenueForm({ venueId, initialData }: VenueFormProps) {
                     fetchSuggestions.cancel();
                   } else fetchSuggestions(val);
                 }}
-                className={INPUT_CLASS}
+                className="h-9"
                 placeholder="Search for a venue…"
                 autoComplete="off"
               />
@@ -251,60 +253,54 @@ export function VenueForm({ venueId, initialData }: VenueFormProps) {
         ) : (
           <div className="space-y-3">
             <div>
-              <input
+              <Input
                 {...register('manualName', {
                   validate: (v) => (mode === 'manual' ? !!v.trim() || 'Name is required' : true),
                 })}
-                className={INPUT_CLASS}
+                className="h-9"
                 placeholder="Venue name"
               />
               {errors.manualName && <p className={ERROR_CLASS}>{errors.manualName.message}</p>}
             </div>
-            <input
+            <Input
               {...register('manualAddress')}
-              className={INPUT_CLASS}
+              className="h-9"
               placeholder="Via dei Palazzi, 5, Montepulciano, Italy"
             />
           </div>
         )}
       </div>
 
-      <div>
-        <label className={LABEL_CLASS}>Sleeps</label>
-        <input
+      <div className="space-y-1">
+        <Label htmlFor="sleeps">Sleeps</Label>
+        <Input
           {...register('sleeps')}
+          id="sleeps"
           type="number"
           min="0"
-          className={INPUT_CLASS}
+          className="h-9"
           placeholder="90"
         />
       </div>
 
-      <div>
-        <label className={LABEL_CLASS}>Instagram</label>
-        <input
+      <div className="space-y-1">
+        <Label htmlFor="instagramUrl">Instagram</Label>
+        <Input
           {...register('instagramUrl')}
+          id="instagramUrl"
           type="url"
-          className={INPUT_CLASS}
+          className="h-9"
           placeholder="https://www.instagram.com/venuename"
         />
       </div>
 
       <div className="flex gap-3 pt-1">
-        <button
-          type="submit"
-          disabled={isSubmitting}
-          className="rounded-lg bg-blue-600 px-5 py-2 text-sm font-medium text-white hover:bg-blue-700 transition-colors disabled:opacity-50"
-        >
+        <Button type="submit" disabled={isSubmitting} size="default">
           {isSubmitting ? 'Saving…' : isEditing ? 'Save changes' : 'Add venue'}
-        </button>
-        <button
-          type="button"
-          onClick={() => router.back()}
-          className="rounded-lg border border-gray-300 px-5 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
-        >
+        </Button>
+        <Button type="button" variant="outline" onClick={() => router.back()}>
           Cancel
-        </button>
+        </Button>
       </div>
     </form>
   );
