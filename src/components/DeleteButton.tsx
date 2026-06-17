@@ -1,30 +1,28 @@
 'use client';
 
+import { useActionState } from 'react';
 import { useRouter } from 'next/navigation';
-import { useState } from 'react';
 import { Button } from '@/components/ui/button';
+import { deleteVenueAction } from '@/app/actions';
 
 export function DeleteButton({ venueId, venueName }: { venueId: number; venueName: string }) {
   const router = useRouter();
-  const [loading, setLoading] = useState(false);
+  const [state, dispatch, pending] = useActionState(deleteVenueAction, null);
 
-  async function handleDelete() {
+  async function handleClick() {
     if (!window.confirm(`Delete "${venueName}"? This cannot be undone.`)) return;
-    setLoading(true);
-    try {
-      const res = await fetch(`/api/venues/${venueId}`, { method: 'DELETE' });
-      if (!res.ok) throw new Error('Delete failed');
+    const result = await dispatch(venueId);
+    if (result === null) {
       router.push('/');
-      router.refresh();
-    } catch {
-      alert('Failed to delete. Please try again.');
-      setLoading(false);
     }
   }
 
   return (
-    <Button variant="destructive" size="sm" onClick={handleDelete} disabled={loading}>
-      {loading ? 'Deleting…' : 'Delete'}
-    </Button>
+    <>
+      {state?.error && <p className="mt-1 text-xs text-destructive">{state.error}</p>}
+      <Button variant="destructive" size="sm" onClick={handleClick} disabled={pending}>
+        {pending ? 'Deleting…' : 'Delete'}
+      </Button>
+    </>
   );
 }

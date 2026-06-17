@@ -1,12 +1,12 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useActionState } from 'react';
 import { useRouter } from 'next/navigation';
-import { useForm } from 'react-hook-form';
 import { debounce } from 'lodash-es';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { saveVenue } from '@/app/actions';
 
 interface PlaceSuggestion {
   placeId: string;
@@ -32,13 +32,6 @@ interface PlaceData {
   websiteUrl: string | null;
 }
 
-interface FormValues {
-  manualName: string;
-  manualAddress: string;
-  sleeps: string;
-  instagramUrl: string;
-}
-
 interface VenueFormProps {
   venueId?: number;
   initialData?: {
@@ -49,34 +42,21 @@ interface VenueFormProps {
   };
 }
 
-const ERROR_CLASS = 'mt-1 text-xs text-destructive';
-
 export function VenueForm({ venueId, initialData }: VenueFormProps) {
   const router = useRouter();
   const isEditing = venueId !== undefined;
 
   const [mode, setMode] = useState<'search' | 'manual'>(initialData ? 'manual' : 'search');
 
-  // Search path state — not form fields, so stays as useState
   const [query, setQuery] = useState('');
   const [suggestions, setSuggestions] = useState<PlaceSuggestion[]>([]);
   const [searching, setSearching] = useState(false);
   const [selectedPlace, setSelectedPlace] = useState<PlaceData | null>(null);
+  const [localError, setLocalError] = useState<string | null>(null);
 
-  const {
-    register,
-    handleSubmit,
-    formState: { errors, isSubmitting },
-    setError,
-    clearErrors,
-  } = useForm<FormValues>({
-    defaultValues: {
-      manualName: initialData?.name ?? '',
-      manualAddress: initialData?.address ?? '',
-      sleeps: initialData?.sleeps ?? '',
-      instagramUrl: initialData?.instagramUrl ?? '',
-    },
-  });
+  const [state, dispatch, pending] = useActionState(saveVenue, null);
+
+  const errorMessage = localError ?? state?.error ?? null;
 
   const fetchSuggestions = useMemo(
     () =>
@@ -109,7 +89,7 @@ export function VenueForm({ venueId, initialData }: VenueFormProps) {
     });
     setQuery('');
     setSuggestions([]);
-    clearErrors('root');
+    setLocalError(null);
   }
 
   function clearPlace() {
@@ -117,61 +97,46 @@ export function VenueForm({ venueId, initialData }: VenueFormProps) {
     setQuery('');
   }
 
-  async function onSubmit(values: FormValues) {
+  function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+
     if (mode === 'search' && !selectedPlace) {
-      setError('root', { message: 'Please select a place from the search results' });
+      setLocalError('Please select a place from the search results');
       return;
     }
+    setLocalError(null);
 
-    const payload =
-      mode === 'search' && selectedPlace
-        ? {
-            name: selectedPlace.name,
-            address: selectedPlace.address,
-            locality: selectedPlace.locality,
-            country: selectedPlace.country,
-            lat: selectedPlace.lat,
-            lng: selectedPlace.lng,
-            googleMapsUrl: selectedPlace.googleMapsUrl,
-            websiteUrl: selectedPlace.websiteUrl,
-            googlePlaceId: selectedPlace.placeId,
-            sleeps: values.sleeps ? parseInt(values.sleeps) : null,
-            instagramUrl: values.instagramUrl.trim() || null,
-          }
-        : {
-            name: values.manualName.trim(),
-            address: values.manualAddress.trim() || null,
-            sleeps: values.sleeps ? parseInt(values.sleeps) : null,
-            instagramUrl: values.instagramUrl.trim() || null,
-          };
+    const form = e.currentTarget;
+    const sleeps = (form.elements.namedItem('sleeps') as HTMLInputElement).value;
+    const instagramUrl = (form.elements.namedItem('instagramUrl') as HTMLInputElement).value;
 
-    const res = isEditing
-      ? await fetch(`/api/venues/${venueId}`, {
-          method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(payload),
-        })
-      : await fetch('/api/venues', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(payload),
-        });
-
-    if (!res.ok) {
-      const body = await res.json().catch(() => ({}));
-      setError('root', { message: (body as { error?: string }).error ?? 'Request failed' });
-      return;
+    if (mode === 'search' && selectedPlace) {
+      dispatch({
+        kind: 'search',
+        venueId,
+        placeId: selectedPlace.placeId,
+        name: selectedPlace.name,
+        address: selectedPlace.address,
+        locality: selectedPlace.locality,
+        country: selectedPlace.country,
+        lat: selectedPlace.lat,
+        lng: selectedPlace.lng,
+        googleMapsUrl: selectedPlace.googleMapsUrl,
+        websiteUrl: selectedPlace.websiteUrl,
+        sleeps,
+        instagramUrl,
+      });
+    } else {
+      const name = (form.elements.namedItem('manualName') as HTMLInputElement).value;
+      const address = (form.elements.namedItem('manualAddress') as HTMLInputElement).value;
+      dispatch({ kind: 'manual', venueId, name, address, sleeps, instagramUrl });
     }
-
-    const venue = (await res.json()) as { id: number };
-    router.push(`/venues/${venue.id}`);
-    router.refresh();
   }
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
-      {errors.root && (
-        <div className="rounded-lg bg-red-50 p-3 text-sm text-red-700">{errors.root.message}</div>
+    <form onSubmit={handleSubmit} className="space-y-5">
+      {errorMessage && (
+        <div className="rounded-lg bg-red-50 p-3 text-sm text-red-700">{errorMessage}</div>
       )}
 
       <div>
@@ -187,7 +152,7 @@ export function VenueForm({ venueId, initialData }: VenueFormProps) {
               setQuery('');
               setSuggestions([]);
               fetchSuggestions.cancel();
-              clearErrors('root');
+              setLocalError(null);
             }}
             className="h-auto p-0 text-xs"
           >
@@ -252,21 +217,26 @@ export function VenueForm({ venueId, initialData }: VenueFormProps) {
           )
         ) : (
           <div className="space-y-3">
-            <div>
+            <div className="space-y-1">
+              <Label htmlFor="manualName">Name</Label>
               <Input
-                {...register('manualName', {
-                  validate: (v) => (mode === 'manual' ? !!v.trim() || 'Name is required' : true),
-                })}
+                name="manualName"
+                id="manualName"
+                defaultValue={initialData?.name ?? ''}
                 className="h-9"
                 placeholder="Venue name"
               />
-              {errors.manualName && <p className={ERROR_CLASS}>{errors.manualName.message}</p>}
             </div>
-            <Input
-              {...register('manualAddress')}
-              className="h-9"
-              placeholder="Via dei Palazzi, 5, Montepulciano, Italy"
-            />
+            <div className="space-y-1">
+              <Label htmlFor="manualAddress">Address</Label>
+              <Input
+                name="manualAddress"
+                id="manualAddress"
+                defaultValue={initialData?.address ?? ''}
+                className="h-9"
+                placeholder="Via dei Palazzi, 5, Montepulciano, Italy"
+              />
+            </div>
           </div>
         )}
       </div>
@@ -274,10 +244,11 @@ export function VenueForm({ venueId, initialData }: VenueFormProps) {
       <div className="space-y-1">
         <Label htmlFor="sleeps">Sleeps</Label>
         <Input
-          {...register('sleeps')}
+          name="sleeps"
           id="sleeps"
           type="number"
           min="0"
+          defaultValue={initialData?.sleeps ?? ''}
           className="h-9"
           placeholder="90"
         />
@@ -286,17 +257,18 @@ export function VenueForm({ venueId, initialData }: VenueFormProps) {
       <div className="space-y-1">
         <Label htmlFor="instagramUrl">Instagram</Label>
         <Input
-          {...register('instagramUrl')}
+          name="instagramUrl"
           id="instagramUrl"
           type="url"
+          defaultValue={initialData?.instagramUrl ?? ''}
           className="h-9"
           placeholder="https://www.instagram.com/venuename"
         />
       </div>
 
       <div className="flex gap-3 pt-1">
-        <Button type="submit" disabled={isSubmitting} size="default">
-          {isSubmitting ? 'Saving…' : isEditing ? 'Save changes' : 'Add venue'}
+        <Button type="submit" disabled={pending} size="default">
+          {pending ? 'Saving…' : isEditing ? 'Save changes' : 'Add venue'}
         </Button>
         <Button type="button" variant="outline" onClick={() => router.back()}>
           Cancel
