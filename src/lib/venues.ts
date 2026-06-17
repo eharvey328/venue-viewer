@@ -59,6 +59,7 @@ export async function createVenue(data: {
   sleeps?: number | null;
   googleMapsUrl?: string | null;
   websiteUrl?: string | null;
+  instagramUrl?: string | null;
   googlePlaceId?: string | null;
 }) {
   return prisma.venue.create({ data });
@@ -76,6 +77,7 @@ export async function updateVenue(
     sleeps?: number | null;
     googleMapsUrl?: string | null;
     websiteUrl?: string | null;
+    instagramUrl?: string | null;
     googlePlaceId?: string | null;
   }
 ) {

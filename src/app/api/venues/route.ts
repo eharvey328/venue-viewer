@@ -26,6 +26,7 @@ export async function POST(request: NextRequest) {
         sleeps,
         googleMapsUrl: body.googleMapsUrl,
         websiteUrl: body.websiteUrl ?? null,
+        instagramUrl: body.instagramUrl ?? null,
         googlePlaceId: body.googlePlaceId ?? null,
       });
       return NextResponse.json(venue, { status: 201 });
@@ -42,6 +43,7 @@ export async function POST(request: NextRequest) {
       lng: coords?.lng ?? null,
       sleeps,
       googleMapsUrl: null,
+      instagramUrl: body.instagramUrl ?? null,
     });
 
     return NextResponse.json(venue, { status: 201 });

@@ -23,6 +23,7 @@ export async function PUT(request: NextRequest, { params }: Params) {
     if (body.name !== undefined) update.name = body.name.trim();
     if (body.sleeps !== undefined)
       update.sleeps = typeof body.sleeps === 'number' ? body.sleeps : null;
+    if (body.instagramUrl !== undefined) update.instagramUrl = body.instagramUrl?.trim() || null;
 
     if (body.address !== undefined) {
       const address = body.address?.trim() || null;

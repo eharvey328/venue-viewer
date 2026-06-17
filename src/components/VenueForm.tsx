@@ -34,6 +34,7 @@ interface VenueFormProps {
     name?: string;
     address?: string;
     sleeps?: string;
+    instagramUrl?: string;
   };
 }
 
@@ -61,6 +62,8 @@ export function VenueForm({ venueId, initialData }: VenueFormProps) {
   // Manual path state
   const [manualName, setManualName] = useState(initialData?.name ?? '');
   const [manualAddress, setManualAddress] = useState(initialData?.address ?? '');
+
+  const [instagramUrl, setInstagramUrl] = useState(initialData?.instagramUrl ?? '');
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -128,11 +131,13 @@ export function VenueForm({ venueId, initialData }: VenueFormProps) {
             websiteUrl: selectedPlace.websiteUrl,
             googlePlaceId: selectedPlace.placeId,
             sleeps: sleeps ? parseInt(sleeps) : null,
+            instagramUrl: instagramUrl.trim() || null,
           }
         : {
             name: manualName.trim(),
             address: manualAddress.trim() || null,
             sleeps: sleeps ? parseInt(sleeps) : null,
+            instagramUrl: instagramUrl.trim() || null,
           };
 
     try {
@@ -268,6 +273,17 @@ export function VenueForm({ venueId, initialData }: VenueFormProps) {
           onChange={(e) => setSleeps(e.target.value)}
           className={inputClass()}
           placeholder="90"
+        />
+      </div>
+
+      <div>
+        <label className={labelClass()}>Instagram</label>
+        <input
+          type="url"
+          value={instagramUrl}
+          onChange={(e) => setInstagramUrl(e.target.value)}
+          className={inputClass()}
+          placeholder="https://www.instagram.com/venuename"
         />
       </div>
 

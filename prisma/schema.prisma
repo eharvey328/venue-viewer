@@ -19,6 +19,7 @@ model Venue {
   googleMapsUrl   String?
   googlePlaceId   String?
   websiteUrl      String?
+  instagramUrl    String?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
