@@ -1,10 +1,10 @@
 import { Suspense } from 'react';
-import { VenueListClient } from '@/components/VenueListClient';
+import { VenueViewer } from './_home/VenueViewer';
 
 export default function Home() {
   return (
     <Suspense>
-      <VenueListClient />
+      <VenueViewer />
     </Suspense>
   );
 }

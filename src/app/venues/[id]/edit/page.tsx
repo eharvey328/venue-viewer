@@ -1,6 +1,6 @@
 import { notFound } from 'next/navigation';
 import { getVenueById } from '@/lib/venues';
-import { VenueForm } from '@/components/VenueForm';
+import { VenueForm } from '../../VenueForm';
 
 interface Props {
   params: Promise<{ id: string }>;

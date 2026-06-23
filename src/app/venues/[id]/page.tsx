@@ -2,9 +2,9 @@ import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
 import { getVenueById } from '@/lib/venues';
-import { DeleteButton } from '@/components/DeleteButton';
+import { DeleteButton } from './DeleteButton';
 import { buttonVariants } from '@/components/ui/button';
-import { InstagramEmbed } from '@/components/InstagramEmbed';
+import { InstagramEmbed } from './InstagramEmbed';
 
 interface Props {
   params: Promise<{ id: string }>;

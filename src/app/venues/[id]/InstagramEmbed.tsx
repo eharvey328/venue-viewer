@@ -1,9 +1,17 @@
 'use client';
+
+import { useEffect } from 'react';
+
+
 interface InstagramEmbedProps {
   instagramUrl: string;
 }
 
 export function InstagramEmbed({ instagramUrl }: InstagramEmbedProps) {
+  useEffect(() => {
+    window.instgrm?.Embeds.process();
+  }, []);
+
   return (
     <div className="mt-6">
       <h2 className="mb-2 text-sm font-medium text-gray-700">Instagram</h2>
@@ -30,8 +38,6 @@ export function InstagramEmbed({ instagramUrl }: InstagramEmbedProps) {
           {/* View profile button skeleton */}
           <div className="h-16" />
         </blockquote>
-
-        <script async src="//www.instagram.com/embed.js" />
       </div>
     </div>
   );

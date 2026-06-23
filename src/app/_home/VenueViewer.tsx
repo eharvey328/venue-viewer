@@ -2,10 +2,12 @@
 
 import { useSearchParams } from 'next/navigation';
 import { useQuery } from '@tanstack/react-query';
-import { FilterBar } from '@/components/FilterBar';
-import { VenueList } from '@/components/VenueList';
-import { VenueMapDynamic } from '@/components/VenueMapDynamic';
+import { FilterBar } from './FilterBar';
+import { VenueList } from './VenueList';
 import { parseFiltersFromParams, serializeFiltersToParams } from '@/lib/filters';
+import dynamic from 'next/dynamic';
+
+const VenueMap = dynamic(() => import('./VenueMap'), { ssr: false });
 
 interface Venue {
   id: number;
@@ -27,7 +29,7 @@ async function fetchVenues(search: string): Promise<Venue[]> {
   return data.venues;
 }
 
-export function VenueListClient() {
+export function VenueViewer() {
   const searchParams = useSearchParams();
   const filters = parseFiltersFromParams(searchParams);
   const filterParams = serializeFiltersToParams(filters);
@@ -58,7 +60,7 @@ export function VenueListClient() {
       {isLoading ? (
         <div className="py-20 text-center text-gray-400">Loading…</div>
       ) : filters.view === 'map' ? (
-        <VenueMapDynamic venues={venueList} />
+        <VenueMap venues={venueList} />
       ) : (
         <VenueList venues={venueList} />
       )}

@@ -2,8 +2,9 @@ import type { Metadata } from 'next';
 import { Geist } from 'next/font/google';
 import './globals.css';
 import Link from 'next/link';
+import Script from 'next/script';
 import { buttonVariants } from '@/components/ui/button';
-import { QueryProvider } from '@/components/QueryProvider';
+import { QueryProvider } from '@/providers/QueryProvider';
 
 const geist = Geist({ subsets: ['latin'] });
 
@@ -26,6 +27,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             </Link>
           </div>
         </header>
+        <Script src="//www.instagram.com/embed.js" strategy="lazyOnload" />
         <QueryProvider>
           <main className="mx-auto max-w-5xl px-4 py-5">{children}</main>
         </QueryProvider>
