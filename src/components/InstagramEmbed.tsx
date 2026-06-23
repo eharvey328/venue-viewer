@@ -31,11 +31,13 @@ export function InstagramEmbed({ instagramUrl }: InstagramEmbedProps) {
   return (
     <div className="mt-6">
       <h2 className="mb-2 text-sm font-medium text-gray-700">Instagram</h2>
-      <blockquote
-        className="instagram-media w-full m-0"
-        data-instgrm-permalink={instagramUrl}
-        data-instgrm-version="14"
-      />
+      <div className="min-h-[540px]">
+        <blockquote
+          className="instagram-media w-full m-0"
+          data-instgrm-permalink={instagramUrl}
+          data-instgrm-version="14"
+        />
+      </div>
     </div>
   );
 }
