@@ -1,6 +1,6 @@
 import { Prisma } from '@/generated/prisma/client';
 import { prisma } from './db';
-import type { VenueFilters, SortOption } from './filters';
+import type { SortOption, VenueFilters } from './filters';
 
 function buildOrderBy(sort: SortOption): Prisma.VenueOrderByWithRelationInput {
   switch (sort) {
@@ -18,8 +18,8 @@ function buildOrderBy(sort: SortOption): Prisma.VenueOrderByWithRelationInput {
 export async function getVenues(filters: VenueFilters) {
   const where: Prisma.VenueWhereInput = {};
 
-  if (filters.countries.length > 0) {
-    where.OR = filters.countries.map((c) => ({
+  if (filters.country.length > 0) {
+    where.OR = filters.country.map((c) => ({
       country: { contains: c, mode: 'insensitive' as const },
     }));
   }
