@@ -30,15 +30,15 @@ async function fetchVenues(search: string): Promise<Venue[]> {
 export function VenueListClient() {
   const searchParams = useSearchParams();
   const filters = parseFiltersFromParams(searchParams);
-  const queryKey = serializeFiltersToParams(filters);
+  const filterParams = serializeFiltersToParams(filters);
 
   const {
     data: venues,
     isLoading,
     isError,
   } = useQuery({
-    queryKey: ['venues', queryKey],
-    queryFn: () => fetchVenues(queryKey),
+    queryKey: ['venues', filterParams],
+    queryFn: () => fetchVenues(filterParams),
   });
 
   if (isError) {
@@ -54,7 +54,7 @@ export function VenueListClient() {
 
   return (
     <div className="space-y-4">
-      <FilterBar filters={filters} totalCount={isLoading ? 0 : venueList.length} />
+      <FilterBar filters={filters} totalCount={venueList.length} />
       {isLoading ? (
         <div className="py-20 text-center text-gray-400">Loading…</div>
       ) : filters.view === 'map' ? (
