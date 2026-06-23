@@ -42,6 +42,7 @@ export const saveVenue = actionClient
     const sleeps = rawSleeps ? parseInt(rawSleeps) : null;
     const parsedSleeps = Number.isNaN(sleeps) ? null : sleeps;
     const instagramUrl = rawInstagram.trim() || null;
+    const manualWebsiteUrl = parsedInput.websiteUrl?.trim() || null;
 
     let locality: string | null = null;
     let country: string | null = null;
@@ -75,7 +76,7 @@ export const saveVenue = actionClient
           lng = existing?.lng ?? null;
           googleMapsUrl = existing?.googleMapsUrl ?? null;
           googlePlaceId = existing?.googlePlaceId ?? null;
-          websiteUrl = existing?.websiteUrl ?? null;
+          websiteUrl = manualWebsiteUrl ?? existing?.websiteUrl ?? null;
           photoUrl = existing?.photoUrl ?? null;
         } else if (address) {
           const coords = await geocode(address);
@@ -83,6 +84,7 @@ export const saveVenue = actionClient
           country = coords?.country ?? null;
           lat = coords?.lat ?? null;
           lng = coords?.lng ?? null;
+          websiteUrl = manualWebsiteUrl;
         }
       } else if (address) {
         const coords = await geocode(address);
@@ -90,6 +92,7 @@ export const saveVenue = actionClient
         country = coords?.country ?? null;
         lat = coords?.lat ?? null;
         lng = coords?.lng ?? null;
+        websiteUrl = manualWebsiteUrl;
       }
 
       const data = {

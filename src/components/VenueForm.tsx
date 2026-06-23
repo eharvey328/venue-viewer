@@ -41,6 +41,7 @@ interface VenueFormProps {
     name?: string;
     address?: string;
     sleeps?: string;
+    websiteUrl?: string;
     instagramUrl?: string;
   };
 }
@@ -112,6 +113,7 @@ export function VenueForm({ venueId, initialData }: VenueFormProps) {
 
     const form = e.currentTarget;
     const sleeps = (form.elements.namedItem('sleeps') as HTMLInputElement).value;
+    const websiteUrl = (form.elements.namedItem('websiteUrl') as HTMLInputElement).value;
     const instagramUrl = (form.elements.namedItem('instagramUrl') as HTMLInputElement).value;
 
     if (mode === 'search' && selectedPlace) {
@@ -133,7 +135,7 @@ export function VenueForm({ venueId, initialData }: VenueFormProps) {
     } else {
       const name = (form.elements.namedItem('manualName') as HTMLInputElement).value;
       const address = (form.elements.namedItem('manualAddress') as HTMLInputElement).value;
-      execute({ venueId, name, address, sleeps, instagramUrl });
+      execute({ venueId, name, address, sleeps, websiteUrl, instagramUrl });
     }
   }
 
@@ -255,6 +257,18 @@ export function VenueForm({ venueId, initialData }: VenueFormProps) {
           defaultValue={initialData?.sleeps ?? ''}
           className="h-9"
           placeholder="90"
+        />
+      </div>
+
+      <div className="space-y-1">
+        <Label htmlFor="websiteUrl">Website</Label>
+        <Input
+          name="websiteUrl"
+          id="websiteUrl"
+          type="url"
+          defaultValue={initialData?.websiteUrl ?? ''}
+          className="h-9"
+          placeholder="https://venuename.com"
         />
       </div>
 

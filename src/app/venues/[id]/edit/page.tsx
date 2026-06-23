@@ -23,6 +23,7 @@ export default async function EditVenuePage({ params }: Props) {
           name: venue.name,
           address: venue.address ?? '',
           sleeps: venue.sleeps != null ? String(venue.sleeps) : '',
+          websiteUrl: venue.websiteUrl ?? '',
           instagramUrl: venue.instagramUrl ?? '',
         }}
       />
