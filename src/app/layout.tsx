@@ -3,6 +3,7 @@ import { Geist } from 'next/font/google';
 import './globals.css';
 import Link from 'next/link';
 import { buttonVariants } from '@/components/ui/button';
+import { ScrollRestorer } from '@/components/ScrollRestorer';
 
 const geist = Geist({ subsets: ['latin'] });
 
@@ -25,6 +26,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             </Link>
           </div>
         </header>
+        <ScrollRestorer />
         <main className="mx-auto max-w-5xl px-4 py-5">{children}</main>
       </body>
     </html>
