@@ -4,7 +4,6 @@ import Image from 'next/image';
 import { getVenueById } from '@/lib/venues';
 import { DeleteButton } from '@/components/DeleteButton';
 import { buttonVariants } from '@/components/ui/button';
-import { GoogleMapsEmbed } from '@/components/GoogleMapsEmbed';
 import { InstagramEmbed } from '@/components/InstagramEmbed';
 
 interface Props {
@@ -92,15 +91,8 @@ export default async function VenueDetailPage({ params }: Props) {
         )}
       </div>
 
-      {(venue.googlePlaceId || venue.instagramUrl) && (
-        <div className="mt-2">
-          {venue.googlePlaceId && (
-            <GoogleMapsEmbed googlePlaceId={venue.googlePlaceId} />
-          )}
-          {venue.instagramUrl && (
-            <InstagramEmbed instagramUrl={venue.instagramUrl} />
-          )}
-        </div>
+      {venue.instagramUrl && (
+        <InstagramEmbed instagramUrl={venue.instagramUrl} />
       )}
     </div>
   );
