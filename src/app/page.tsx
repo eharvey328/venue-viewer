@@ -2,7 +2,6 @@ import { Suspense } from 'react';
 import { VenueList } from '@/components/VenueList';
 import { FilterBar } from '@/components/FilterBar';
 import { VenueMapDynamic } from '@/components/VenueMapDynamic';
-import { ScrollPositionRestorer } from '@/components/ScrollRestorer';
 import { getVenues } from '@/lib/venues';
 import { parseFiltersFromParams } from '@/lib/filters';
 
@@ -23,7 +22,6 @@ async function HomeContent({ searchParams }: HomeProps) {
 
   return (
     <>
-      <ScrollPositionRestorer />
       <div className="space-y-4">
         <FilterBar filters={filters} totalCount={venues.length} />
         {filters.view === 'map' ? <VenueMapDynamic venues={venues} /> : <VenueList venues={venues} />}
