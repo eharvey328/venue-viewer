@@ -11,7 +11,15 @@ interface VenueCardProps {
   priority?: boolean;
 }
 
-export function VenueCard({ id, name, locality, country, sleeps, photoUrl, priority }: VenueCardProps) {
+export function VenueCard({
+  id,
+  name,
+  locality,
+  country,
+  sleeps,
+  photoUrl,
+  priority,
+}: VenueCardProps) {
   const location = [locality, country].filter(Boolean).join(', ');
   return (
     <Link

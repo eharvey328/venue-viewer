@@ -21,11 +21,13 @@
 ### Task 1: Install react-query and add QueryClientProvider to layout
 
 **Files:**
+
 - Modify: `src/app/layout.tsx`
 - Create: `src/components/QueryProvider.tsx`
 - Delete: `src/components/ScrollRestorer.tsx`
 
 **Interfaces:**
+
 - Produces: `QueryProvider` — `"use client"` wrapper that provides `QueryClient` to the tree. Used in `layout.tsx`.
 
 React-query's `QueryClientProvider` requires `"use client"`. Since `layout.tsx` is an RSC, create a thin wrapper component to hold the client boundary.
@@ -121,9 +123,11 @@ git commit -m "feat: add QueryClientProvider, remove ScrollRestorer"
 ### Task 2: Add /api/venues route
 
 **Files:**
+
 - Create: `src/app/api/venues/route.ts`
 
 **Interfaces:**
+
 - Consumes: `getVenues(filters: VenueFilters)` from `@/lib/venues`, `parseFiltersFromParams(params: URLSearchParams)` from `@/lib/filters`
 - Produces: `GET /api/venues?country=X&sleepsMin=Y&sort=Z&view=W` → `200 { venues: Venue[] }` where `Venue` matches the `select` fields from `getVenues`: `{ id, name, address, locality, country, lat, lng, sleeps, googleMapsUrl, photoUrl }`
 
@@ -156,6 +160,7 @@ yarn dev
 ```
 
 Then in another terminal:
+
 ```bash
 curl "http://localhost:3000/api/venues" | head -c 200
 ```
@@ -174,10 +179,12 @@ git commit -m "feat: add /api/venues route"
 ### Task 3: Create VenueListClient and update home page
 
 **Files:**
+
 - Create: `src/components/VenueListClient.tsx`
 - Modify: `src/app/page.tsx`
 
 **Interfaces:**
+
 - Consumes:
   - `GET /api/venues` from Task 2 — returns `{ venues: Venue[] }`
   - `FilterBar({ filters: VenueFilters, totalCount: number })` from `@/components/FilterBar`
@@ -190,6 +197,7 @@ git commit -m "feat: add /api/venues route"
 - Produces: `VenueListClient()` — renders the full venue list UI with filter bar
 
 `Venue` type (matches `getVenues` select fields, reuse in this file):
+
 ```ts
 interface Venue {
   id: number;
@@ -233,7 +241,7 @@ interface Venue {
 async function fetchVenues(search: string): Promise<Venue[]> {
   const res = await fetch(`/api/venues${search ? `?${search}` : ''}`);
   if (!res.ok) throw new Error('Failed to fetch venues');
-  const data = await res.json() as { venues: Venue[] };
+  const data = (await res.json()) as { venues: Venue[] };
   return data.venues;
 }
 
@@ -242,7 +250,11 @@ export function VenueListClient() {
   const filters = parseFiltersFromParams(searchParams);
   const queryKey = serializeFiltersToParams(filters);
 
-  const { data: venues, isLoading, isError } = useQuery({
+  const {
+    data: venues,
+    isLoading,
+    isError,
+  } = useQuery({
     queryKey: ['venues', queryKey],
     queryFn: () => fetchVenues(queryKey),
   });
@@ -305,6 +317,7 @@ yarn dev
 ```
 
 Check:
+
 - Home page loads and shows venue list
 - Changing filters updates the list
 - Clicking a venue and pressing back returns to the list at the same scroll position

@@ -23,7 +23,7 @@ interface Venue {
 async function fetchVenues(search: string): Promise<Venue[]> {
   const res = await fetch(`/api/venues${search ? `?${search}` : ''}`);
   if (!res.ok) throw new Error('Failed to fetch venues');
-  const data = await res.json() as { venues: Venue[] };
+  const data = (await res.json()) as { venues: Venue[] };
   return data.venues;
 }
 
@@ -32,7 +32,11 @@ export function VenueListClient() {
   const filters = parseFiltersFromParams(searchParams);
   const queryKey = serializeFiltersToParams(filters);
 
-  const { data: venues, isLoading, isError } = useQuery({
+  const {
+    data: venues,
+    isLoading,
+    isError,
+  } = useQuery({
     queryKey: ['venues', queryKey],
     queryFn: () => fetchVenues(queryKey),
   });
