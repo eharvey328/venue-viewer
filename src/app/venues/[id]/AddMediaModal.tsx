@@ -3,17 +3,18 @@
 import { useState } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { useAction } from 'next-safe-action/hooks';
-import { Link2, Image, X, ArrowLeft } from 'lucide-react';
+import { Link2, Image, AtSign, X, ArrowLeft } from 'lucide-react';
 import { Dialog, DialogPopup, DialogTitle, DialogClose } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { addLink } from '@/app/actions';
+import { addLink, updateInstagram } from '@/app/actions';
 
-type Step = 'pick' | 'link';
+type Step = 'pick' | 'link' | 'instagram';
 
 const MEDIA_TYPES = [
   { key: 'link', label: 'Link', icon: Link2, enabled: true },
+  { key: 'instagram', label: 'Instagram', icon: AtSign, enabled: true },
   { key: 'photo', label: 'Photo', icon: Image, enabled: false },
 ] as const;
 
@@ -23,7 +24,14 @@ export function AddMediaModal({ venueId }: { venueId: number }) {
   const [url, setUrl] = useState('');
   const queryClient = useQueryClient();
 
-  const { execute, isPending, result, reset } = useAction(addLink, {
+  const addLinkAction = useAction(addLink, {
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['venue', venueId] });
+      handleClose();
+    },
+  });
+
+  const updateInstagramAction = useAction(updateInstagram, {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['venue', venueId] });
       handleClose();
@@ -34,10 +42,29 @@ export function AddMediaModal({ venueId }: { venueId: number }) {
     setOpen(false);
     setStep('pick');
     setUrl('');
-    reset();
+    addLinkAction.reset();
+    updateInstagramAction.reset();
   }
 
-  const error = result.serverError ?? result.validationErrors?.url?._errors?.[0] ?? null;
+  function handleBack() {
+    setStep('pick');
+    setUrl('');
+    addLinkAction.reset();
+    updateInstagramAction.reset();
+  }
+
+  const stepTitle =
+    step === 'pick' ? 'Add media' : step === 'link' ? 'Add link' : 'Add Instagram';
+
+  const linkError =
+    addLinkAction.result.serverError ??
+    addLinkAction.result.validationErrors?.url?._errors?.[0] ??
+    null;
+
+  const instagramError =
+    updateInstagramAction.result.serverError ??
+    updateInstagramAction.result.validationErrors?.instagramUrl?._errors?.[0] ??
+    null;
 
   return (
     <>
@@ -50,18 +77,16 @@ export function AddMediaModal({ venueId }: { venueId: number }) {
           {/* Header */}
           <div className="flex items-center justify-between px-5 py-4 border-b border-gray-100">
             <div className="flex items-center gap-2">
-              {step === 'link' && (
+              {step !== 'pick' && (
                 <button
-                  onClick={() => { setStep('pick'); setUrl(''); reset(); }}
+                  onClick={handleBack}
                   className="text-gray-400 hover:text-gray-700 mr-1"
                   aria-label="Back"
                 >
                   <ArrowLeft size={18} />
                 </button>
               )}
-              <DialogTitle>
-                {step === 'pick' ? 'Add media' : 'Add link'}
-              </DialogTitle>
+              <DialogTitle>{stepTitle}</DialogTitle>
             </div>
             <DialogClose
               className="text-gray-400 hover:text-gray-700"
@@ -94,16 +119,16 @@ export function AddMediaModal({ venueId }: { venueId: number }) {
                   </button>
                 ))}
               </div>
-            ) : (
+            ) : step === 'link' ? (
               <form
                 onSubmit={(e) => {
                   e.preventDefault();
-                  execute({ venueId, url });
+                  addLinkAction.execute({ venueId, url });
                 }}
                 className="space-y-4"
               >
-                {error && (
-                  <div className="rounded-lg bg-red-50 p-3 text-sm text-red-700">{error}</div>
+                {linkError && (
+                  <div className="rounded-lg bg-red-50 p-3 text-sm text-red-700">{linkError}</div>
                 )}
                 <div className="space-y-1.5">
                   <Label htmlFor="link-url">URL</Label>
@@ -117,8 +142,39 @@ export function AddMediaModal({ venueId }: { venueId: number }) {
                     autoFocus
                   />
                 </div>
-                <Button type="submit" disabled={isPending || !url} className="w-full">
-                  {isPending ? 'Adding…' : 'Add link'}
+                <Button type="submit" disabled={addLinkAction.isPending || !url} className="w-full">
+                  {addLinkAction.isPending ? 'Adding…' : 'Add link'}
+                </Button>
+              </form>
+            ) : (
+              <form
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  updateInstagramAction.execute({ venueId, instagramUrl: url || null });
+                }}
+                className="space-y-4"
+              >
+                {instagramError && (
+                  <div className="rounded-lg bg-red-50 p-3 text-sm text-red-700">{instagramError}</div>
+                )}
+                <div className="space-y-1.5">
+                  <Label htmlFor="instagram-url">Instagram profile URL</Label>
+                  <Input
+                    id="instagram-url"
+                    type="url"
+                    placeholder="https://www.instagram.com/username"
+                    value={url}
+                    onChange={(e) => setUrl(e.target.value)}
+                    className="h-9"
+                    autoFocus
+                  />
+                </div>
+                <Button
+                  type="submit"
+                  disabled={updateInstagramAction.isPending || !url}
+                  className="w-full"
+                >
+                  {updateInstagramAction.isPending ? 'Saving…' : 'Save Instagram'}
                 </Button>
               </form>
             )}
