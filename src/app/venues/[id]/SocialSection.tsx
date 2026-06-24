@@ -33,7 +33,7 @@ export function SocialSection({
         </div>
         {managing && (
           <>
-            <div onClick={onEdit} className="absolute inset-0 cursor-pointer" />
+            <div onClick={onEdit} className="absolute inset-0 cursor-pointer rounded-xl hover:bg-blue-50 transition-colors" />
             <button
               onClick={(e) => { e.stopPropagation(); execDelete({ venueId, instagramUrl: null }); }}
               disabled={deleting}
