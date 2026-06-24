@@ -27,13 +27,16 @@ export function SocialSection({
   return (
     <div className="relative">
       <SectionHeader label="Social" />
-      <div
-        onClick={managing ? onEdit : undefined}
-        className={managing ? 'cursor-pointer' : undefined}
-      >
+      <div className="relative">
         <div className="[&_h2]:hidden [&_.mt-6]:mt-0">
           <InstagramEmbed instagramUrl={instagramUrl} />
         </div>
+        {managing && (
+          <div
+            onClick={onEdit}
+            className="absolute inset-0 cursor-pointer bg-blue-500/5 rounded-xl"
+          />
+        )}
       </div>
 
       {managing && (
