@@ -13,12 +13,12 @@ import { addLink, updateInstagram } from '@/app/actions';
 type Step = 'pick' | 'link' | 'instagram';
 
 const MEDIA_TYPES = [
-  { key: 'link', label: 'Link', icon: Link2, enabled: true },
-  { key: 'instagram', label: 'Instagram', icon: AtSign, enabled: true },
-  { key: 'photo', label: 'Photo', icon: Image, enabled: false },
+  { key: 'link', label: 'Link', icon: Link2 },
+  { key: 'instagram', label: 'Instagram', icon: AtSign },
+  { key: 'photo', label: 'Photo', icon: Image },
 ] as const;
 
-export function AddMediaModal({ venueId }: { venueId: number }) {
+export function AddMediaModal({ venueId, instagramUrl }: { venueId: number; instagramUrl: string | null }) {
   const [open, setOpen] = useState(false);
   const [step, setStep] = useState<Step>('pick');
   const [url, setUrl] = useState('');
@@ -101,23 +101,27 @@ export function AddMediaModal({ venueId }: { venueId: number }) {
           <div className="flex-1 px-5 py-6 overflow-y-auto">
             {step === 'pick' ? (
               <div className="grid grid-cols-2 gap-3">
-                {MEDIA_TYPES.map(({ key, label, icon: Icon, enabled }) => (
-                  <button
-                    key={key}
-                    disabled={!enabled}
-                    onClick={() => enabled && setStep(key as Step)}
-                    className={[
-                      'flex flex-col items-center justify-center gap-3 rounded-xl border p-6 transition-colors',
-                      enabled
-                        ? 'border-gray-200 bg-white hover:border-gray-300 hover:bg-gray-50 cursor-pointer'
-                        : 'border-gray-100 bg-gray-50 cursor-not-allowed opacity-50',
-                    ].join(' ')}
-                  >
-                    <Icon size={24} className={enabled ? 'text-gray-700' : 'text-gray-400'} />
-                    <span className="text-sm font-medium text-gray-700">{label}</span>
-                    {!enabled && <span className="text-xs text-gray-400">Coming soon</span>}
-                  </button>
-                ))}
+                {MEDIA_TYPES.map(({ key, label, icon: Icon }) => {
+                  const disabled = key === 'photo' || (key === 'instagram' && !!instagramUrl);
+                  const subLabel = key === 'photo' ? 'Coming soon' : key === 'instagram' && instagramUrl ? 'Connected' : null;
+                  return (
+                    <button
+                      key={key}
+                      disabled={disabled}
+                      onClick={() => !disabled && setStep(key as Step)}
+                      className={[
+                        'flex flex-col items-center justify-center gap-3 rounded-xl border p-6 transition-colors',
+                        disabled
+                          ? 'border-gray-100 bg-gray-50 cursor-not-allowed opacity-50'
+                          : 'border-gray-200 bg-white hover:border-gray-300 hover:bg-gray-50 cursor-pointer',
+                      ].join(' ')}
+                    >
+                      <Icon size={24} className={disabled ? 'text-gray-400' : 'text-gray-700'} />
+                      <span className="text-sm font-medium text-gray-700">{label}</span>
+                      {subLabel && <span className="text-xs text-gray-400">{subLabel}</span>}
+                    </button>
+                  );
+                })}
               </div>
             ) : step === 'link' ? (
               <form

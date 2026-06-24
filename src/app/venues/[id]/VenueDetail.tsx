@@ -111,7 +111,7 @@ export function VenueDetail({ id, initialVenue }: { id: number; initialVenue: Ve
       )}
 
       <div className="mt-6">
-        <AddMediaModal venueId={venue.id} />
+        <AddMediaModal venueId={venue.id} instagramUrl={venue.instagramUrl} />
       </div>
 
       <div className="mt-6 flex flex-col gap-6">
