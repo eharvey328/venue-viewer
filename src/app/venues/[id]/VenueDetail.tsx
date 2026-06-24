@@ -119,12 +119,14 @@ export function VenueDetail({ id, initialVenue }: { id: number; initialVenue: Ve
       )}
 
       <div className="mt-6 flex gap-2">
-        <AddMediaModal
-          venueId={venue.id}
-          instagramUrl={venue.instagramUrl}
-          editTarget={editTarget}
-          onEditClose={() => setEditTarget(null)}
-        />
+        <div className="flex-1">
+          <AddMediaModal
+            venueId={venue.id}
+            instagramUrl={venue.instagramUrl}
+            editTarget={editTarget}
+            onEditClose={() => setEditTarget(null)}
+          />
+        </div>
         <button
           onClick={() => setManaging((m) => !m)}
           className={[
