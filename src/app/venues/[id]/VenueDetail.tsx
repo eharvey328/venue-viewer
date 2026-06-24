@@ -5,8 +5,10 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
 import { buttonVariants } from '@/components/ui/button';
+import { Button } from '@/components/ui/button';
 import { DeleteButton } from './DeleteButton';
-import { InstagramEmbed } from './InstagramEmbed';
+import { LinksSection } from './LinksSection';
+import { SocialSection } from './SocialSection';
 
 interface Venue {
   id: number;
@@ -81,30 +83,20 @@ export function VenueDetail({ id }: { id: number }) {
         </span>
       )}
 
-      <div className="mt-3 flex flex-col gap-1">
-        {venue.websiteUrl && (
-          <a
-            href={venue.websiteUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-sm text-blue-600 hover:underline"
-          >
-            Visit website →
-          </a>
-        )}
-        {venue.googleMapsUrl && (
-          <a
-            href={venue.googleMapsUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-sm text-blue-600 hover:underline"
-          >
-            View on Google Maps →
-          </a>
-        )}
+      <div className="mt-6">
+        <Button variant="outline" className="w-full" disabled>
+          + Add Media
+        </Button>
       </div>
 
-      {venue.instagramUrl && <InstagramEmbed instagramUrl={venue.instagramUrl} />}
+      <div className="mt-6 flex flex-col gap-6">
+        <LinksSection
+          websiteUrl={venue.websiteUrl}
+          googleMapsUrl={venue.googleMapsUrl}
+          address={venue.address}
+        />
+        {venue.instagramUrl && <SocialSection instagramUrl={venue.instagramUrl} />}
+      </div>
     </div>
   );
 }
