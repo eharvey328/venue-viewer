@@ -46,57 +46,35 @@ export function InstagramEmbed({ instagramUrl }: InstagramEmbedProps) {
 
     window.instgrm?.Embeds.process();
 
-    // Watch for Instagram replacing the blockquote with an iframe.
-    // If no iframe appears within 8s, or the iframe src signals an error, show fallback.
-    const container = containerRef.current;
-    if (!container) return;
-
     let timer: ReturnType<typeof setTimeout>;
 
-    const observer = new MutationObserver(() => {
-      const iframe = container.querySelector('iframe');
-      if (!iframe) return;
-      observer.disconnect();
-      clearTimeout(timer);
-
-      // Instagram error pages have a recognisable src pattern
-      const checkSrc = () => {
-        const src = iframe.src ?? '';
-        if (src.includes('/embed/captcha') || src.includes('error') || src === '') {
-          setFailed(true);
-        }
-      };
-
-      if (iframe.src) {
-        checkSrc();
-      } else {
-        iframe.addEventListener('load', checkSrc, { once: true });
+    // Instagram's embed script sends postMessage with height info.
+    // Successful profile embeds are tall (600px+); error pages are short (~300px).
+    // We wait for the first size message then decide.
+    const handleMessage = (e: MessageEvent) => {
+      try {
+        const data = typeof e.data === 'string' ? JSON.parse(e.data) : e.data;
+        if (data?.type !== 'MEASURE') return;
+        const height = data?.details?.height ?? data?.height ?? 0;
+        clearTimeout(timer);
+        window.removeEventListener('message', handleMessage);
+        if (height < 480) setFailed(true);
+      } catch {
+        // ignore non-JSON messages
       }
+    };
 
-      // Also check iframe height after it loads — error embeds stay very short
-      iframe.addEventListener(
-        'load',
-        () => {
-          // Give the iframe a moment to paint
-          setTimeout(() => {
-            if (iframe.offsetHeight < 100) setFailed(true);
-          }, 500);
-        },
-        { once: true },
-      );
-    });
+    window.addEventListener('message', handleMessage);
 
-    observer.observe(container, { childList: true, subtree: true });
-
-    // Fallback: if Instagram's script never fires (blocked, slow, etc.)
+    // Fallback: if Instagram's script never fires at all
     timer = setTimeout(() => {
-      observer.disconnect();
-      const iframe = container.querySelector('iframe');
-      if (!iframe) setFailed(true);
+      window.removeEventListener('message', handleMessage);
+      const container = containerRef.current;
+      if (!container?.querySelector('iframe')) setFailed(true);
     }, 8000);
 
     return () => {
-      observer.disconnect();
+      window.removeEventListener('message', handleMessage);
       clearTimeout(timer);
     };
   }, [instagramUrl]);
