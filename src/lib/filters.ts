@@ -17,6 +17,21 @@ export type VenueFilters = z.infer<typeof filtersSchema>;
 export type SortOption = VenueFilters['sort'];
 export type ViewOption = VenueFilters['view'];
 
+export function parseFilters(params: URLSearchParams): VenueFilters {
+  const paramsObj = searchParamsToObject(params);
+  const parsed = filtersSchema.safeParse(paramsObj);
+  return parsed.success ? parsed.data : filtersSchema.parse({});
+}
+
+function searchParamsToObject(params: URLSearchParams) {
+  const obj: Record<string, string | string[]> = {};
+  for (const key of new Set(params.keys())) {
+    const values = params.getAll(key);
+    obj[key] = values.length === 1 ? values[0] : values;
+  }
+  return obj;
+}
+
 export function serializeFilters(filters: VenueFilters): string {
   const params = new URLSearchParams();
   filters.country.forEach((c) => params.append('country', c));

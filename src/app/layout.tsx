@@ -4,6 +4,7 @@ import './globals.css';
 import Link from 'next/link';
 import Script from 'next/script';
 import { buttonVariants } from '@/components/ui/button';
+import { Providers } from './providers/Providers';
 
 const geist = Geist({ subsets: ['latin'] });
 
@@ -28,7 +29,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         </header>
         <Script src="//www.instagram.com/embed.js" strategy="lazyOnload" />
 
-        <main className="mx-auto max-w-5xl px-4 py-5">{children}</main>
+        <main className="mx-auto max-w-5xl px-4 py-5">
+          <Providers>{children}</Providers>
+        </main>
       </body>
     </html>
   );
