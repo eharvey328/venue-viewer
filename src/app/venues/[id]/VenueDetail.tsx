@@ -30,9 +30,7 @@ interface Venue {
   links: VenueLink[];
 }
 
-type EditTarget =
-  | { type: 'link'; link: VenueLink }
-  | { type: 'instagram' };
+type EditTarget = { type: 'link'; link: VenueLink } | { type: 'instagram' };
 
 export function VenueDetail({ id, initialVenue }: { id: number; initialVenue: Venue }) {
   const router = useRouter();
@@ -136,7 +134,15 @@ export function VenueDetail({ id, initialVenue }: { id: number; initialVenue: Ve
               : 'border-gray-200 bg-white text-gray-700 hover:bg-gray-50',
           ].join(' ')}
         >
-          {managing ? <><Check size={14} /> Done</> : <><Pencil size={14} /> Manage</>}
+          {managing ? (
+            <>
+              <Check size={14} /> Done
+            </>
+          ) : (
+            <>
+              <Pencil size={14} /> Manage
+            </>
+          )}
         </button>
       </div>
 

@@ -42,10 +42,14 @@ function applyFilters(venues: Venue[], filters: ReturnType<typeof parseFilters>)
 
   result = [...result].sort((a, b) => {
     switch (filters.sort) {
-      case 'name_asc':  return a.name.localeCompare(b.name);
-      case 'name_desc': return b.name.localeCompare(a.name);
-      case 'sleeps_asc':  return (a.sleeps ?? Infinity) - (b.sleeps ?? Infinity);
-      case 'sleeps_desc': return (b.sleeps ?? -Infinity) - (a.sleeps ?? -Infinity);
+      case 'name_asc':
+        return a.name.localeCompare(b.name);
+      case 'name_desc':
+        return b.name.localeCompare(a.name);
+      case 'sleeps_asc':
+        return (a.sleeps ?? Infinity) - (b.sleeps ?? Infinity);
+      case 'sleeps_desc':
+        return (b.sleeps ?? -Infinity) - (a.sleeps ?? -Infinity);
     }
   });
 

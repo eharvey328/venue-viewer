@@ -3,7 +3,11 @@
 import * as React from 'react';
 import { Dialog as DialogPrimitive } from '@base-ui/react/dialog';
 
-export function Dialog({ children, open, onOpenChange }: {
+export function Dialog({
+  children,
+  open,
+  onOpenChange,
+}: {
   children: React.ReactNode;
   open?: boolean;
   onOpenChange?: (open: boolean) => void;
@@ -24,7 +28,13 @@ export function DialogBackdrop() {
   );
 }
 
-export function DialogPopup({ children, className }: { children: React.ReactNode; className?: string }) {
+export function DialogPopup({
+  children,
+  className,
+}: {
+  children: React.ReactNode;
+  className?: string;
+}) {
   return (
     <DialogPrimitive.Portal>
       <DialogBackdrop />
@@ -36,7 +46,9 @@ export function DialogPopup({ children, className }: { children: React.ReactNode
           'sm:w-full sm:max-w-md sm:rounded-2xl sm:shadow-xl',
           'transition-all data-[ending-style]:opacity-0 data-[starting-style]:opacity-0',
           className,
-        ].filter(Boolean).join(' ')}
+        ]
+          .filter(Boolean)
+          .join(' ')}
       >
         {children}
       </DialogPrimitive.Popup>
@@ -44,9 +56,17 @@ export function DialogPopup({ children, className }: { children: React.ReactNode
   );
 }
 
-export function DialogTitle({ children, className }: { children: React.ReactNode; className?: string }) {
+export function DialogTitle({
+  children,
+  className,
+}: {
+  children: React.ReactNode;
+  className?: string;
+}) {
   return (
-    <DialogPrimitive.Title className={['text-lg font-semibold text-gray-900', className].filter(Boolean).join(' ')}>
+    <DialogPrimitive.Title
+      className={['text-lg font-semibold text-gray-900', className].filter(Boolean).join(' ')}
+    >
       {children}
     </DialogPrimitive.Title>
   );

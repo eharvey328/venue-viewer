@@ -46,7 +46,14 @@ export function WebsiteCard({
         href={managing ? undefined : url}
         target="_blank"
         rel="noopener noreferrer"
-        onClick={managing ? (e) => { e.preventDefault(); onEdit(link); } : undefined}
+        onClick={
+          managing
+            ? (e) => {
+                e.preventDefault();
+                onEdit(link);
+              }
+            : undefined
+        }
         className={[
           'flex items-center gap-3 rounded-xl border border-gray-200 bg-white px-4 py-3 transition-colors',
           managing ? 'cursor-pointer hover:bg-blue-50 hover:border-blue-200' : 'hover:bg-gray-50',

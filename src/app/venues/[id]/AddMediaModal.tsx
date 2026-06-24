@@ -12,11 +12,12 @@ import { addLink, updateLink, updateInstagram } from '@/app/actions';
 
 type Step = 'pick' | 'link' | 'instagram';
 
-interface VenueLink { id: number; url: string; }
+interface VenueLink {
+  id: number;
+  url: string;
+}
 
-type EditTarget =
-  | { type: 'link'; link: VenueLink }
-  | { type: 'instagram' };
+type EditTarget = { type: 'link'; link: VenueLink } | { type: 'instagram' };
 
 const MEDIA_TYPES = [
   { key: 'link', label: 'Link', icon: Link2 },
@@ -97,8 +98,12 @@ export function AddMediaModal({
     step === 'pick'
       ? 'Add media'
       : step === 'link'
-      ? isEditing ? 'Edit link' : 'Add link'
-      : isEditing ? 'Edit Instagram' : 'Add Instagram';
+        ? isEditing
+          ? 'Edit link'
+          : 'Add link'
+        : isEditing
+          ? 'Edit Instagram'
+          : 'Add Instagram';
 
   const linkError =
     addLinkAction.result.serverError ??
@@ -118,7 +123,12 @@ export function AddMediaModal({
         + Add Media
       </Button>
 
-      <Dialog open={open} onOpenChange={(o) => { if (!o) handleClose(); }}>
+      <Dialog
+        open={open}
+        onOpenChange={(o) => {
+          if (!o) handleClose();
+        }}
+      >
         <DialogPopup>
           {/* Header */}
           <div className="flex items-center justify-between px-5 py-4 border-b border-gray-100">
@@ -149,7 +159,12 @@ export function AddMediaModal({
               <div className="grid grid-cols-2 gap-3">
                 {MEDIA_TYPES.map(({ key, label, icon: Icon }) => {
                   const disabled = key === 'photo' || (key === 'instagram' && !!instagramUrl);
-                  const subLabel = key === 'photo' ? 'Coming soon' : key === 'instagram' && instagramUrl ? 'Connected' : null;
+                  const subLabel =
+                    key === 'photo'
+                      ? 'Coming soon'
+                      : key === 'instagram' && instagramUrl
+                        ? 'Connected'
+                        : null;
                   return (
                     <button
                       key={key}
@@ -198,10 +213,16 @@ export function AddMediaModal({
                 </div>
                 <Button
                   type="submit"
-                  disabled={(isEditing ? updateLinkAction.isPending : addLinkAction.isPending) || !url}
+                  disabled={
+                    (isEditing ? updateLinkAction.isPending : addLinkAction.isPending) || !url
+                  }
                   className="w-full"
                 >
-                  {(isEditing ? updateLinkAction.isPending : addLinkAction.isPending) ? 'Saving…' : isEditing ? 'Save link' : 'Add link'}
+                  {(isEditing ? updateLinkAction.isPending : addLinkAction.isPending)
+                    ? 'Saving…'
+                    : isEditing
+                      ? 'Save link'
+                      : 'Add link'}
                 </Button>
               </form>
             ) : (
@@ -213,7 +234,9 @@ export function AddMediaModal({
                 className="space-y-4"
               >
                 {instagramError && (
-                  <div className="rounded-lg bg-red-50 p-3 text-sm text-red-700">{instagramError}</div>
+                  <div className="rounded-lg bg-red-50 p-3 text-sm text-red-700">
+                    {instagramError}
+                  </div>
                 )}
                 <div className="space-y-1.5">
                   <Label htmlFor="instagram-url">Instagram profile URL</Label>

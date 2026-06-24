@@ -27,7 +27,12 @@ export async function getVenueById(id: number) {
 
 export async function addVenueLink(
   venueId: number,
-  data: { url: string; ogTitle?: string | null; ogDescription?: string | null; ogImage?: string | null }
+  data: {
+    url: string;
+    ogTitle?: string | null;
+    ogDescription?: string | null;
+    ogImage?: string | null;
+  }
 ) {
   return prisma.venueLink.create({ data: { venueId, ...data } });
 }

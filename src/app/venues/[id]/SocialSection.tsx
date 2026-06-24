@@ -33,9 +33,15 @@ export function SocialSection({
         </div>
         {managing && (
           <>
-            <div onClick={onEdit} className="absolute inset-0 cursor-pointer rounded-xl hover:bg-blue-50 transition-colors" />
+            <div
+              onClick={onEdit}
+              className="absolute inset-0 cursor-pointer rounded-xl hover:bg-blue-50 transition-colors"
+            />
             <button
-              onClick={(e) => { e.stopPropagation(); execDelete({ venueId, instagramUrl: null }); }}
+              onClick={(e) => {
+                e.stopPropagation();
+                execDelete({ venueId, instagramUrl: null });
+              }}
               disabled={deleting}
               aria-label="Remove Instagram"
               className="absolute -top-2 -right-2 flex h-5 w-5 items-center justify-center rounded-full bg-gray-900 text-white hover:bg-red-600 transition-colors disabled:opacity-50"
