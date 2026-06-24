@@ -76,7 +76,7 @@ export const saveVenue = actionClient
           lng = existing?.lng ?? null;
           googleMapsUrl = existing?.googleMapsUrl ?? null;
           googlePlaceId = existing?.googlePlaceId ?? null;
-          websiteUrl = manualWebsiteUrl ?? existing?.websiteUrl ?? null;
+          websiteUrl = manualWebsiteUrl;
           photoUrl = existing?.photoUrl ?? null;
         } else if (address) {
           const coords = await geocode(address);
