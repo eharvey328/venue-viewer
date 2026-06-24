@@ -1,40 +1,8 @@
-import { Prisma } from '@/generated/prisma/client';
 import { prisma } from './db';
-import type { SortOption, VenueFilters } from './filters';
 
-function buildOrderBy(sort: SortOption): Prisma.VenueOrderByWithRelationInput {
-  switch (sort) {
-    case 'name_asc':
-      return { name: 'asc' };
-    case 'name_desc':
-      return { name: 'desc' };
-    case 'sleeps_asc':
-      return { sleeps: { sort: 'asc', nulls: 'last' } };
-    case 'sleeps_desc':
-      return { sleeps: { sort: 'desc', nulls: 'last' } };
-  }
-}
-
-export async function getVenues(filters: VenueFilters) {
-  const where: Prisma.VenueWhereInput = {};
-
-  if (filters.search) {
-    where.name = { contains: filters.search, mode: 'insensitive' };
-  }
-
-  if (filters.country.length > 0) {
-    where.OR = filters.country.map((c) => ({
-      country: { contains: c, mode: 'insensitive' as const },
-    }));
-  }
-
-  if (filters.sleepsMin !== null) {
-    where.sleeps = { gte: filters.sleepsMin };
-  }
-
+export async function getVenues() {
   return prisma.venue.findMany({
-    where,
-    orderBy: buildOrderBy(filters.sort),
+    orderBy: { name: 'asc' },
     select: {
       id: true,
       name: true,

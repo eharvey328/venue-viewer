@@ -1,9 +1,7 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { parseFilters } from '@/lib/filters';
+import { NextResponse } from 'next/server';
 import { getVenues } from '@/lib/venues';
 
-export async function GET(request: NextRequest) {
-  const filters = parseFilters(request.nextUrl.searchParams);
-  const venues = await getVenues(filters);
+export async function GET() {
+  const venues = await getVenues();
   return NextResponse.json(venues);
 }
