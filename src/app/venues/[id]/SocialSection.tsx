@@ -25,30 +25,26 @@ export function SocialSection({
   });
 
   return (
-    <div className="relative">
+    <div>
       <SectionHeader label="Social" />
       <div className="relative">
         <div className="[&_h2]:hidden [&_.mt-6]:mt-0">
           <InstagramEmbed instagramUrl={instagramUrl} />
         </div>
         {managing && (
-          <div
-            onClick={onEdit}
-            className="absolute inset-0 cursor-pointer"
-          />
+          <>
+            <div onClick={onEdit} className="absolute inset-0 cursor-pointer" />
+            <button
+              onClick={(e) => { e.stopPropagation(); execDelete({ venueId, instagramUrl: null }); }}
+              disabled={deleting}
+              aria-label="Remove Instagram"
+              className="absolute -top-2 -right-2 flex h-5 w-5 items-center justify-center rounded-full bg-gray-900 text-white hover:bg-red-600 transition-colors disabled:opacity-50"
+            >
+              <X size={11} />
+            </button>
+          </>
         )}
       </div>
-
-      {managing && (
-        <button
-          onClick={(e) => { e.stopPropagation(); execDelete({ venueId, instagramUrl: null }); }}
-          disabled={deleting}
-          aria-label="Remove Instagram"
-          className="absolute top-0 right-0 flex h-5 w-5 items-center justify-center rounded-full bg-gray-900 text-white hover:bg-red-600 transition-colors disabled:opacity-50"
-        >
-          <X size={11} />
-        </button>
-      )}
     </div>
   );
 }
