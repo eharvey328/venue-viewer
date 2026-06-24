@@ -34,7 +34,7 @@ export function SocialSection({
         {managing && (
           <div
             onClick={onEdit}
-            className="absolute inset-0 cursor-pointer bg-blue-500/5 rounded-xl"
+            className="absolute inset-0 cursor-pointer"
           />
         )}
       </div>
