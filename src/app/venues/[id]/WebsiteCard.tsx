@@ -10,7 +10,12 @@ interface OgData {
 }
 
 export function WebsiteCard({ url }: { url: string }) {
-  const domain = new URL(url).hostname.replace(/^www\./, '');
+  let domain: string;
+  try {
+    domain = new URL(url).hostname.replace(/^www\./, '');
+  } catch {
+    domain = url;
+  }
 
   const { data: og } = useQuery<OgData | null>({
     queryKey: ['og', url],
