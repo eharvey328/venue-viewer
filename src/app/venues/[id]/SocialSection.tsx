@@ -33,10 +33,7 @@ export function SocialSection({
         </div>
         {managing && (
           <>
-            <div
-              onClick={onEdit}
-              className="absolute inset-0 cursor-pointer rounded-xl hover:bg-blue-50 transition-colors"
-            />
+            <div onClick={onEdit} className="absolute inset-0 cursor-pointer" />
             <button
               onClick={(e) => {
                 e.stopPropagation();
