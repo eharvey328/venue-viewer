@@ -46,19 +46,27 @@ export function InstagramEmbed({ instagramUrl }: InstagramEmbedProps) {
 
     window.instgrm?.Embeds.process();
 
-    let timer: ReturnType<typeof setTimeout>;
+    // Instagram sends multiple MEASURE postMessages as content loads.
+    // Track the max height; decide 2s after messages stop arriving.
+    // Error pages plateau around 300px; working profile embeds reach 600px+.
+    let maxHeight = 0;
+    let settleTimer: ReturnType<typeof setTimeout>;
+    let timeoutTimer: ReturnType<typeof setTimeout>;
 
-    // Instagram's embed script sends postMessage with height info.
-    // Successful profile embeds are tall (600px+); error pages are short (~300px).
-    // We wait for the first size message then decide.
+    const decide = () => {
+      window.removeEventListener('message', handleMessage);
+      clearTimeout(timeoutTimer);
+      if (maxHeight < 480) setFailed(true);
+    };
+
     const handleMessage = (e: MessageEvent) => {
       try {
         const data = typeof e.data === 'string' ? JSON.parse(e.data) : e.data;
         if (data?.type !== 'MEASURE') return;
         const height = data?.details?.height ?? data?.height ?? 0;
-        clearTimeout(timer);
-        window.removeEventListener('message', handleMessage);
-        if (height < 480) setFailed(true);
+        if (height > maxHeight) maxHeight = height;
+        clearTimeout(settleTimer);
+        settleTimer = setTimeout(decide, 2000);
       } catch {
         // ignore non-JSON messages
       }
@@ -66,16 +74,18 @@ export function InstagramEmbed({ instagramUrl }: InstagramEmbedProps) {
 
     window.addEventListener('message', handleMessage);
 
-    // Fallback: if Instagram's script never fires at all
-    timer = setTimeout(() => {
+    // Hard fallback if no MEASURE messages arrive at all
+    timeoutTimer = setTimeout(() => {
+      clearTimeout(settleTimer);
       window.removeEventListener('message', handleMessage);
       const container = containerRef.current;
       if (!container?.querySelector('iframe')) setFailed(true);
-    }, 8000);
+    }, 10000);
 
     return () => {
       window.removeEventListener('message', handleMessage);
-      clearTimeout(timer);
+      clearTimeout(settleTimer);
+      clearTimeout(timeoutTimer);
     };
   }, [instagramUrl]);
 
