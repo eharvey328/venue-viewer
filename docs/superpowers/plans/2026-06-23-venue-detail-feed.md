@@ -23,9 +23,11 @@
 ### Task 1: `/api/og` route
 
 **Files:**
+
 - Create: `src/app/api/og/route.ts`
 
 **Interfaces:**
+
 - Produces: `GET /api/og?url=<encoded>` → `{ title: string | null, description: string | null, image: string | null } | null`
 
 - [ ] **Step 1: Create the route file**
@@ -54,8 +56,12 @@ export async function GET(request: NextRequest) {
 
     function getMeta(property: string): string | null {
       const match =
-        html.match(new RegExp(`<meta[^>]+property=["']${property}["'][^>]+content=["']([^"']+)["']`, 'i')) ??
-        html.match(new RegExp(`<meta[^>]+content=["']([^"']+)["'][^>]+property=["']${property}["']`, 'i'));
+        html.match(
+          new RegExp(`<meta[^>]+property=["']${property}["'][^>]+content=["']([^"']+)["']`, 'i')
+        ) ??
+        html.match(
+          new RegExp(`<meta[^>]+content=["']([^"']+)["'][^>]+property=["']${property}["']`, 'i')
+        );
       return match?.[1] ?? null;
     }
 
@@ -81,9 +87,11 @@ Expected: no TypeScript errors, route appears in build output as `ƒ /api/og`
 - [ ] **Step 3: Manual smoke test**
 
 Start dev server (`yarn dev`), then open:
+
 ```
 http://localhost:3000/api/og?url=https%3A%2F%2Fexample.com
 ```
+
 Expected: JSON response with `title`, `description`, `image` fields (may be null for example.com)
 
 - [ ] **Step 4: Commit**
@@ -98,10 +106,12 @@ git commit -m "feat: add /api/og route for OG metadata fetching"
 ### Task 2: `SectionHeader` + `GoogleMapsCard`
 
 **Files:**
+
 - Create: `src/app/venues/[id]/SectionHeader.tsx`
 - Create: `src/app/venues/[id]/GoogleMapsCard.tsx`
 
 **Interfaces:**
+
 - Produces: `<SectionHeader label={string} />` — renders an all-caps label with a horizontal rule
 - Produces: `<GoogleMapsCard url={string} address={string | null} />` — green-tinted card, always simple
 
@@ -138,9 +148,7 @@ export function GoogleMapsCard({ url, address }: { url: string; address: string 
       </div>
       <div className="min-w-0">
         <p className="text-sm font-medium text-green-900">View on Google Maps</p>
-        {address && (
-          <p className="text-xs text-green-700 truncate">{address}</p>
-        )}
+        {address && <p className="text-xs text-green-700 truncate">{address}</p>}
       </div>
       <span className="ml-auto text-green-600 text-sm">→</span>
     </a>
@@ -168,9 +176,11 @@ git commit -m "feat: add SectionHeader and GoogleMapsCard components"
 ### Task 3: `WebsiteCard`
 
 **Files:**
+
 - Create: `src/app/venues/[id]/WebsiteCard.tsx`
 
 **Interfaces:**
+
 - Consumes: `GET /api/og?url=<encoded>` → `{ title, description, image } | null` (from Task 1)
 - Produces: `<WebsiteCard url={string} />` — client component, rich on OG success, simple fallback
 
@@ -264,10 +274,12 @@ git commit -m "feat: add WebsiteCard with OG metadata and simple fallback"
 ### Task 4: `LinksSection` + `SocialSection`
 
 **Files:**
+
 - Create: `src/app/venues/[id]/LinksSection.tsx`
 - Create: `src/app/venues/[id]/SocialSection.tsx`
 
 **Interfaces:**
+
 - Consumes: `<SectionHeader label={string} />` (Task 2), `<GoogleMapsCard url address />` (Task 2), `<WebsiteCard url />` (Task 3), `<InstagramEmbed instagramUrl />` (existing)
 - Produces: `<LinksSection websiteUrl address googleMapsUrl />` — hidden when both URLs are absent
 - Produces: `<SocialSection instagramUrl />` — hidden when instagramUrl is absent
@@ -338,9 +350,11 @@ git commit -m "feat: add LinksSection and SocialSection components"
 ### Task 5: Wire up `VenueDetail`
 
 **Files:**
+
 - Modify: `src/app/venues/[id]/VenueDetail.tsx`
 
 **Interfaces:**
+
 - Consumes: `<LinksSection websiteUrl googleMapsUrl address />` (Task 4), `<SocialSection instagramUrl />` (Task 4)
 
 - [ ] **Step 1: Update VenueDetail**
@@ -468,6 +482,7 @@ yarn dev
 ```
 
 Navigate to a venue that has a website URL, Google Maps URL, and Instagram URL. Verify:
+
 - "+ Add Media" button appears below the header, full width, disabled
 - Links section appears with website card (rich if OG loads, simple fallback otherwise)
 - Google Maps card is green-tinted with map pin icon

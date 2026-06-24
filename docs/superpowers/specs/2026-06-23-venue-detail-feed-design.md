@@ -25,12 +25,14 @@ Full-width button below the venue header. Placeholder only for now — no modal,
 Header label: "Links"
 
 ### Website card
+
 - Fetches OG metadata via `/api/og?url=...` (server-side, 2s timeout)
 - **Rich variant** (on success): small `og:image` thumbnail on the left, `og:title` as heading, `og:description` truncated to 2 lines, domain as caption
 - **Simple fallback**: globe icon, domain name, external link arrow
 - Full card is clickable, opens URL in new tab
 
 ### Google Maps card
+
 - Always simple — no OG fetch
 - Green-tinted background, map pin icon, "View on Google Maps" label, venue address as caption
 - Full card is clickable, opens Google Maps in new tab
@@ -44,6 +46,7 @@ Contains the existing `InstagramEmbed` component, unchanged.
 ## Architecture
 
 ### New files
+
 - `src/app/venues/[id]/LinksSection.tsx` — renders website + Google Maps cards
 - `src/app/venues/[id]/SocialSection.tsx` — wraps `InstagramEmbed` with section header
 - `src/app/venues/[id]/WebsiteCard.tsx` — client component; calls `/api/og` via `useQuery`, renders rich variant on success, simple fallback on null/error
@@ -51,9 +54,11 @@ Contains the existing `InstagramEmbed` component, unchanged.
 - `src/app/api/og/route.ts` — GET handler, fetches URL, parses OG tags, returns `{ title, description, image }` or `null` on failure
 
 ### Modified files
+
 - `src/app/venues/[id]/VenueDetail.tsx` — replaces current link rendering with section components, adds "+ Add Media" button
 
 ### Section header pattern
+
 Each section uses a consistent `<SectionHeader label="..." />` component (inline or shared) — a small all-caps label with a horizontal rule.
 
 ## OG API Route

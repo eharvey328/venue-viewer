@@ -4,9 +4,8 @@ import { useQuery } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
-import { buttonVariants } from '@/components/ui/button';
-import { Button } from '@/components/ui/button';
-import { DeleteButton } from './DeleteButton';
+import { MapPin, BedSingle, ExternalLink } from 'lucide-react';
+import { buttonVariants, Button } from '@/components/ui/button';
 import { LinksSection } from './LinksSection';
 import { SocialSection } from './SocialSection';
 
@@ -21,9 +20,9 @@ interface Venue {
   instagramUrl: string | null;
 }
 
-export function VenueDetail({ id }: { id: number }) {
+export function VenueDetail({ id, initialVenue }: { id: number; initialVenue: Venue }) {
   const router = useRouter();
-  const { data: venue, isLoading } = useQuery<Venue>({
+  const { data: venue } = useQuery<Venue>({
     queryKey: ['venue', id],
     queryFn: async () => {
       const res = await fetch(`/api/venues/${id}`);
@@ -33,9 +32,10 @@ export function VenueDetail({ id }: { id: number }) {
       }
       return res.json();
     },
+    initialData: initialVenue,
   });
 
-  if (isLoading || !venue) {
+  if (!venue) {
     return (
       <div className="flex h-48 items-center justify-center">
         <div className="h-6 w-6 animate-spin rounded-full border-2 border-gray-300 border-t-gray-700" />
@@ -64,23 +64,41 @@ export function VenueDetail({ id }: { id: number }) {
 
       <div className="mt-4 flex items-start justify-between gap-3">
         <h1 className="text-2xl font-bold text-gray-900 leading-tight">{venue.name}</h1>
-        <div className="flex gap-2 shrink-0">
-          <Link
-            href={`/venues/${venue.id}/edit`}
-            className={buttonVariants({ variant: 'outline', size: 'sm' })}
-          >
-            Edit
-          </Link>
-          <DeleteButton venueId={venue.id} venueName={venue.name} />
-        </div>
+        <Link
+          href={`/venues/${venue.id}/edit`}
+          className={buttonVariants({ variant: 'outline', size: 'sm' })}
+        >
+          Edit
+        </Link>
       </div>
 
-      {venue.address && <p className="mt-2 text-gray-500">{venue.address}</p>}
-
-      {venue.sleeps != null && (
-        <span className="mt-3 inline-block rounded-full bg-blue-50 px-3 py-1 text-sm font-medium text-blue-700">
-          Sleeps {venue.sleeps}
-        </span>
+      {(venue.address || venue.sleeps != null) && (
+        <div className="mt-3 flex flex-col gap-1.5">
+          {venue.address &&
+            (venue.googleMapsUrl ? (
+              <a
+                href={venue.googleMapsUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-2 text-sm text-gray-500 hover:text-gray-900"
+              >
+                <MapPin size={14} className="shrink-0" />
+                {venue.address}
+                <ExternalLink size={12} className="shrink-0 ml-0.5" />
+              </a>
+            ) : (
+              <span className="flex items-center gap-2 text-sm text-gray-500">
+                <MapPin size={14} className="shrink-0" />
+                {venue.address}
+              </span>
+            ))}
+          {venue.sleeps != null && (
+            <span className="flex items-center gap-2 text-sm text-gray-500">
+              <BedSingle size={14} className="shrink-0" />
+              Sleeps {venue.sleeps}
+            </span>
+          )}
+        </div>
       )}
 
       <div className="mt-6">
@@ -90,11 +108,7 @@ export function VenueDetail({ id }: { id: number }) {
       </div>
 
       <div className="mt-6 flex flex-col gap-6">
-        <LinksSection
-          websiteUrl={venue.websiteUrl}
-          googleMapsUrl={venue.googleMapsUrl}
-          address={venue.address}
-        />
+        <LinksSection websiteUrl={venue.websiteUrl} />
         {venue.instagramUrl && <SocialSection instagramUrl={venue.instagramUrl} />}
       </div>
     </div>

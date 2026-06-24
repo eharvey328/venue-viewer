@@ -1,6 +1,7 @@
 import { notFound } from 'next/navigation';
 import { getVenueById } from '@/lib/venues';
 import { VenueForm } from '../../VenueForm';
+import { DeleteButton } from '../DeleteButton';
 
 interface Props {
   params: Promise<{ id: string }>;
@@ -23,9 +24,8 @@ export default async function EditVenuePage({ params }: Props) {
           name: venue.name,
           address: venue.address ?? '',
           sleeps: venue.sleeps != null ? String(venue.sleeps) : '',
-          websiteUrl: venue.websiteUrl ?? '',
-          instagramUrl: venue.instagramUrl ?? '',
         }}
+        deleteButton={<DeleteButton venueId={venue.id} venueName={venue.name} />}
       />
     </div>
   );

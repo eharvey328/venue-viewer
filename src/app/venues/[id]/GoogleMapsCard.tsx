@@ -13,9 +13,7 @@ export function GoogleMapsCard({ url, address }: { url: string; address: string 
       </div>
       <div className="min-w-0">
         <p className="text-sm font-medium text-green-900">View on Google Maps</p>
-        {address && (
-          <p className="text-xs text-green-700 truncate">{address}</p>
-        )}
+        {address && <p className="text-xs text-green-700 truncate">{address}</p>}
       </div>
       <span className="ml-auto text-green-600 text-sm">→</span>
     </a>

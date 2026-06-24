@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, type ReactNode } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAction } from 'next-safe-action/hooks';
 import { debounce } from 'lodash-es';
@@ -41,12 +41,11 @@ interface VenueFormProps {
     name?: string;
     address?: string;
     sleeps?: string;
-    websiteUrl?: string;
-    instagramUrl?: string;
   };
+  deleteButton?: ReactNode;
 }
 
-export function VenueForm({ venueId, initialData }: VenueFormProps) {
+export function VenueForm({ venueId, initialData, deleteButton }: VenueFormProps) {
   const router = useRouter();
   const isEditing = venueId !== undefined;
 
@@ -113,8 +112,6 @@ export function VenueForm({ venueId, initialData }: VenueFormProps) {
 
     const form = e.currentTarget;
     const sleeps = (form.elements.namedItem('sleeps') as HTMLInputElement).value;
-    const websiteUrl = (form.elements.namedItem('websiteUrl') as HTMLInputElement).value;
-    const instagramUrl = (form.elements.namedItem('instagramUrl') as HTMLInputElement).value;
 
     if (mode === 'search' && selectedPlace) {
       execute({
@@ -122,7 +119,6 @@ export function VenueForm({ venueId, initialData }: VenueFormProps) {
         name: selectedPlace.name,
         address: selectedPlace.address,
         sleeps,
-        instagramUrl,
         placeId: selectedPlace.placeId,
         locality: selectedPlace.locality,
         country: selectedPlace.country,
@@ -135,7 +131,7 @@ export function VenueForm({ venueId, initialData }: VenueFormProps) {
     } else {
       const name = (form.elements.namedItem('manualName') as HTMLInputElement).value;
       const address = (form.elements.namedItem('manualAddress') as HTMLInputElement).value;
-      execute({ venueId, name, address, sleeps, websiteUrl, instagramUrl });
+      execute({ venueId, name, address, sleeps });
     }
   }
 
@@ -147,7 +143,7 @@ export function VenueForm({ venueId, initialData }: VenueFormProps) {
 
       <div>
         <div className="flex items-center justify-between mb-1">
-          {mode === 'search' && <Label>Place</Label>}
+          <Label>{mode === 'search' ? 'Place' : 'Name'}</Label>
           <Button
             type="button"
             variant="link"
@@ -160,7 +156,7 @@ export function VenueForm({ venueId, initialData }: VenueFormProps) {
               fetchSuggestions.cancel();
               setLocalError(null);
             }}
-            className="h-auto p-0 text-xs"
+            className="h-auto p-0 text-xs text-gray-700 cursor-pointer"
           >
             {mode === 'search' ? 'Enter manually instead' : 'Search Google Places instead'}
           </Button>
@@ -223,16 +219,13 @@ export function VenueForm({ venueId, initialData }: VenueFormProps) {
           )
         ) : (
           <div className="space-y-3">
-            <div className="space-y-1">
-              <Label htmlFor="manualName">Name</Label>
-              <Input
-                name="manualName"
-                id="manualName"
-                defaultValue={initialData?.name ?? ''}
-                className="h-9"
-                placeholder="Venue name"
-              />
-            </div>
+            <Input
+              name="manualName"
+              id="manualName"
+              defaultValue={initialData?.name ?? ''}
+              className="h-9"
+              placeholder="Venue name"
+            />
             <div className="space-y-1">
               <Label htmlFor="manualAddress">Address</Label>
               <Input
@@ -260,37 +253,14 @@ export function VenueForm({ venueId, initialData }: VenueFormProps) {
         />
       </div>
 
-      <div className="space-y-1">
-        <Label htmlFor="websiteUrl">Website</Label>
-        <Input
-          name="websiteUrl"
-          id="websiteUrl"
-          type="url"
-          defaultValue={initialData?.websiteUrl ?? ''}
-          className="h-9"
-          placeholder="https://venuename.com"
-        />
-      </div>
-
-      <div className="space-y-1">
-        <Label htmlFor="instagramUrl">Instagram</Label>
-        <Input
-          name="instagramUrl"
-          id="instagramUrl"
-          type="url"
-          defaultValue={initialData?.instagramUrl ?? ''}
-          className="h-9"
-          placeholder="https://www.instagram.com/venuename"
-        />
-      </div>
-
-      <div className="flex gap-3 pt-1">
+      <div className="flex items-center gap-3 pt-1">
         <Button type="submit" disabled={isPending} size="default">
           {isPending ? 'Saving…' : isEditing ? 'Save changes' : 'Add venue'}
         </Button>
         <Button type="button" variant="outline" onClick={() => router.back()}>
           Cancel
         </Button>
+        {deleteButton && <div className="ml-auto">{deleteButton}</div>}
       </div>
     </form>
   );

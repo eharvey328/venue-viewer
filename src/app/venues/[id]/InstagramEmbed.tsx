@@ -2,7 +2,6 @@
 
 import { useEffect } from 'react';
 
-
 interface InstagramEmbedProps {
   instagramUrl: string;
 }

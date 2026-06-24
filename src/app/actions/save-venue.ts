@@ -13,7 +13,7 @@ const saveVenueSchema = z.object({
   name: z.string().min(1, 'Name is required'),
   address: z.string(),
   sleeps: z.string(),
-  instagramUrl: z.string(),
+  instagramUrl: z.string().optional(),
   // Present when the place was resolved via Places search
   placeId: z.string().optional(),
   locality: z.string().nullable().optional(),
@@ -41,7 +41,6 @@ export const saveVenue = actionClient
     const address = rawAddress.trim() || null;
     const sleeps = rawSleeps ? parseInt(rawSleeps) : null;
     const parsedSleeps = Number.isNaN(sleeps) ? null : sleeps;
-    const instagramUrl = rawInstagram.trim() || null;
     const manualWebsiteUrl = parsedInput.websiteUrl?.trim() || null;
 
     let locality: string | null = null;
@@ -51,6 +50,7 @@ export const saveVenue = actionClient
     let googleMapsUrl: string | null = null;
     let googlePlaceId: string | null = null;
     let websiteUrl: string | null = null;
+    let instagramUrl: string | null = null;
     let photoUrl: string | null = null;
 
     try {
@@ -62,12 +62,19 @@ export const saveVenue = actionClient
         googleMapsUrl = parsedInput.googleMapsUrl ?? null;
         googlePlaceId = placeId;
         websiteUrl = parsedInput.websiteUrl ?? null;
+        instagramUrl = rawInstagram?.trim() || null;
         if (photoName) {
           photoUrl = await fetchAndUploadPhoto(photoName, name.trim());
         }
       } else if (venueId) {
         const existing = await getVenueById(venueId);
         const existingAddress = existing?.address?.trim() || null;
+
+        websiteUrl = manualWebsiteUrl ?? existing?.websiteUrl ?? null;
+        instagramUrl =
+          rawInstagram !== undefined
+            ? rawInstagram.trim() || null
+            : (existing?.instagramUrl ?? null);
 
         if (address === existingAddress) {
           locality = existing?.locality ?? null;
@@ -76,7 +83,6 @@ export const saveVenue = actionClient
           lng = existing?.lng ?? null;
           googleMapsUrl = existing?.googleMapsUrl ?? null;
           googlePlaceId = existing?.googlePlaceId ?? null;
-          websiteUrl = manualWebsiteUrl;
           photoUrl = existing?.photoUrl ?? null;
         } else if (address) {
           const coords = await geocode(address);
@@ -84,7 +90,6 @@ export const saveVenue = actionClient
           country = coords?.country ?? null;
           lat = coords?.lat ?? null;
           lng = coords?.lng ?? null;
-          websiteUrl = manualWebsiteUrl;
         }
       } else if (address) {
         const coords = await geocode(address);
@@ -93,6 +98,7 @@ export const saveVenue = actionClient
         lat = coords?.lat ?? null;
         lng = coords?.lng ?? null;
         websiteUrl = manualWebsiteUrl;
+        instagramUrl = rawInstagram?.trim() || null;
       }
 
       const data = {

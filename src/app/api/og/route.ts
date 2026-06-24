@@ -57,8 +57,12 @@ export async function GET(request: NextRequest) {
 
     function getMeta(property: string): string | null {
       const match =
-        html.match(new RegExp(`<meta[^>]+property=["']${property}["'][^>]+content=["']([^"']+)["']`, 'i')) ??
-        html.match(new RegExp(`<meta[^>]+content=["']([^"']+)["'][^>]+property=["']${property}["']`, 'i'));
+        html.match(
+          new RegExp(`<meta[^>]+property=["']${property}["'][^>]+content=["']([^"']+)["']`, 'i')
+        ) ??
+        html.match(
+          new RegExp(`<meta[^>]+content=["']([^"']+)["'][^>]+property=["']${property}["']`, 'i')
+        );
       return match?.[1] ?? null;
     }
 
