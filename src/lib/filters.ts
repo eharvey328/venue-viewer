@@ -11,6 +11,7 @@ export const filtersSchema = z.object({
   sleepsMin: z.coerce.number().int().positive().nullable().default(null),
   sort: z.enum(['name_asc', 'name_desc', 'sleeps_asc', 'sleeps_desc']).default('name_asc'),
   view: z.enum(['list', 'map']).default('list'),
+  search: z.string().default(''),
 });
 
 export type VenueFilters = z.infer<typeof filtersSchema>;
@@ -38,5 +39,6 @@ export function serializeFilters(filters: VenueFilters): string {
   if (filters.sleepsMin !== null) params.set('sleepsMin', String(filters.sleepsMin));
   if (filters.sort !== 'name_asc') params.set('sort', filters.sort);
   if (filters.view !== 'list') params.set('view', filters.view);
+  if (filters.search) params.set('search', filters.search);
   return params.toString();
 }

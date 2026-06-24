@@ -18,6 +18,10 @@ function buildOrderBy(sort: SortOption): Prisma.VenueOrderByWithRelationInput {
 export async function getVenues(filters: VenueFilters) {
   const where: Prisma.VenueWhereInput = {};
 
+  if (filters.search) {
+    where.name = { contains: filters.search, mode: 'insensitive' };
+  }
+
   if (filters.country.length > 0) {
     where.OR = filters.country.map((c) => ({
       country: { contains: c, mode: 'insensitive' as const },

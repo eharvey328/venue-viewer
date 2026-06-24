@@ -1,5 +1,6 @@
 'use client';
 
+import { useState, useEffect } from 'react';
 import { xor } from 'lodash-es';
 import { useRouter } from 'next/navigation';
 import {
@@ -19,13 +20,29 @@ const SORT_OPTIONS: { value: SortOption; label: string }[] = [
 
 export function FilterBar({ filters, totalCount }: { filters: VenueFilters; totalCount: number }) {
   const router = useRouter();
+  const [searchInput, setSearchInput] = useState(filters.search);
+
+  // Keep local input in sync if URL changes externally (e.g. back navigation)
+  useEffect(() => {
+    setSearchInput(filters.search);
+  }, [filters.search]);
+
+  // Debounce search: only push to URL 300ms after the user stops typing
+  useEffect(() => {
+    if (searchInput === filters.search) return;
+    const t = setTimeout(() => {
+      updateUrl({ search: searchInput });
+    }, 300);
+    return () => clearTimeout(t);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchInput]);
 
   function updateUrl(patch: Partial<VenueFilters>) {
     const next = serializeFilters({ ...filters, ...patch });
     router.push(next ? `/?${next}` : '/');
   }
 
-  const hasFilters = filters.country.length > 0 || filters.sleepsMin !== null;
+  const hasFilters = filters.country.length > 0 || filters.sleepsMin !== null || !!filters.search;
 
   return (
     <div className="space-y-3">
@@ -46,6 +63,14 @@ export function FilterBar({ filters, totalCount }: { filters: VenueFilters; tota
       </div>
 
       <div className="flex flex-wrap items-center gap-2">
+        <input
+          type="search"
+          placeholder="Search venues…"
+          value={searchInput}
+          onChange={(e) => setSearchInput(e.target.value)}
+          className="w-44 rounded-full border border-gray-200 bg-gray-100 px-3 py-1 text-sm text-gray-700 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+        />
+
         {KNOWN_COUNTRIES.map((c) => (
           <button
             key={c}
@@ -90,7 +115,7 @@ export function FilterBar({ filters, totalCount }: { filters: VenueFilters; tota
         </span>
         {hasFilters && (
           <button
-            onClick={() => updateUrl({ country: [], sleepsMin: null })}
+            onClick={() => { setSearchInput(''); updateUrl({ country: [], sleepsMin: null, search: '' }); }}
             className="text-sm text-blue-600 hover:underline"
           >
             Clear
