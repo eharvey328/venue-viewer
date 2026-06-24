@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { useAction } from 'next-safe-action/hooks';
 import { Link2, Image, AtSign, X, ArrowLeft } from 'lucide-react';
@@ -8,9 +8,15 @@ import { Dialog, DialogPopup, DialogTitle, DialogClose } from '@/components/ui/d
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { addLink, updateInstagram } from '@/app/actions';
+import { addLink, updateLink, updateInstagram } from '@/app/actions';
 
 type Step = 'pick' | 'link' | 'instagram';
+
+interface VenueLink { id: number; url: string; }
+
+type EditTarget =
+  | { type: 'link'; link: VenueLink }
+  | { type: 'instagram' };
 
 const MEDIA_TYPES = [
   { key: 'link', label: 'Link', icon: Link2 },
@@ -18,13 +24,43 @@ const MEDIA_TYPES = [
   { key: 'photo', label: 'Photo', icon: Image },
 ] as const;
 
-export function AddMediaModal({ venueId, instagramUrl }: { venueId: number; instagramUrl: string | null }) {
+export function AddMediaModal({
+  venueId,
+  instagramUrl,
+  editTarget,
+  onEditClose,
+}: {
+  venueId: number;
+  instagramUrl: string | null;
+  editTarget: EditTarget | null;
+  onEditClose: () => void;
+}) {
   const [open, setOpen] = useState(false);
   const [step, setStep] = useState<Step>('pick');
   const [url, setUrl] = useState('');
   const queryClient = useQueryClient();
 
+  // Open modal pre-filled when an edit target is set from outside
+  useEffect(() => {
+    if (!editTarget) return;
+    if (editTarget.type === 'link') {
+      setUrl(editTarget.link.url);
+      setStep('link');
+    } else {
+      setUrl(instagramUrl ?? '');
+      setStep('instagram');
+    }
+    setOpen(true);
+  }, [editTarget]); // eslint-disable-line react-hooks/exhaustive-deps
+
   const addLinkAction = useAction(addLink, {
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['venue', venueId] });
+      handleClose();
+    },
+  });
+
+  const updateLinkAction = useAction(updateLink, {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['venue', venueId] });
       handleClose();
@@ -43,22 +79,32 @@ export function AddMediaModal({ venueId, instagramUrl }: { venueId: number; inst
     setStep('pick');
     setUrl('');
     addLinkAction.reset();
+    updateLinkAction.reset();
     updateInstagramAction.reset();
+    onEditClose();
   }
 
   function handleBack() {
     setStep('pick');
     setUrl('');
     addLinkAction.reset();
+    updateLinkAction.reset();
     updateInstagramAction.reset();
   }
 
+  const isEditing = !!editTarget;
   const stepTitle =
-    step === 'pick' ? 'Add media' : step === 'link' ? 'Add link' : 'Add Instagram';
+    step === 'pick'
+      ? 'Add media'
+      : step === 'link'
+      ? isEditing ? 'Edit link' : 'Add link'
+      : isEditing ? 'Edit Instagram' : 'Add Instagram';
 
   const linkError =
     addLinkAction.result.serverError ??
     addLinkAction.result.validationErrors?.url?._errors?.[0] ??
+    updateLinkAction.result.serverError ??
+    updateLinkAction.result.validationErrors?.url?._errors?.[0] ??
     null;
 
   const instagramError =
@@ -127,7 +173,11 @@ export function AddMediaModal({ venueId, instagramUrl }: { venueId: number; inst
               <form
                 onSubmit={(e) => {
                   e.preventDefault();
-                  addLinkAction.execute({ venueId, url });
+                  if (isEditing && editTarget?.type === 'link') {
+                    updateLinkAction.execute({ linkId: editTarget.link.id, venueId, url });
+                  } else {
+                    addLinkAction.execute({ venueId, url });
+                  }
                 }}
                 className="space-y-4"
               >
@@ -146,8 +196,12 @@ export function AddMediaModal({ venueId, instagramUrl }: { venueId: number; inst
                     autoFocus
                   />
                 </div>
-                <Button type="submit" disabled={addLinkAction.isPending || !url} className="w-full">
-                  {addLinkAction.isPending ? 'Adding…' : 'Add link'}
+                <Button
+                  type="submit"
+                  disabled={(isEditing ? updateLinkAction.isPending : addLinkAction.isPending) || !url}
+                  className="w-full"
+                >
+                  {(isEditing ? updateLinkAction.isPending : addLinkAction.isPending) ? 'Saving…' : isEditing ? 'Save link' : 'Add link'}
                 </Button>
               </form>
             ) : (

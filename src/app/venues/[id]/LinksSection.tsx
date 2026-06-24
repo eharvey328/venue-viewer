@@ -9,7 +9,17 @@ interface VenueLink {
   ogImage: string | null;
 }
 
-export function LinksSection({ links }: { links: VenueLink[] }) {
+export function LinksSection({
+  links,
+  venueId,
+  managing,
+  onEdit,
+}: {
+  links: VenueLink[];
+  venueId: number;
+  managing: boolean;
+  onEdit: (link: VenueLink) => void;
+}) {
   if (links.length === 0) return null;
 
   return (
@@ -17,7 +27,13 @@ export function LinksSection({ links }: { links: VenueLink[] }) {
       <SectionHeader label="Links" />
       <div className="flex flex-col gap-2">
         {links.map((link) => (
-          <WebsiteCard key={link.id} link={link} />
+          <WebsiteCard
+            key={link.id}
+            link={link}
+            venueId={venueId}
+            managing={managing}
+            onEdit={onEdit}
+          />
         ))}
       </div>
     </div>

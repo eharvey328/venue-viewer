@@ -1,10 +1,11 @@
 'use client';
 
+import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
-import { MapPin, BedSingle, ExternalLink } from 'lucide-react';
+import { MapPin, BedSingle, ExternalLink, Pencil, Check } from 'lucide-react';
 import { buttonVariants } from '@/components/ui/button';
 import { LinksSection } from './LinksSection';
 import { SocialSection } from './SocialSection';
@@ -29,8 +30,15 @@ interface Venue {
   links: VenueLink[];
 }
 
+type EditTarget =
+  | { type: 'link'; link: VenueLink }
+  | { type: 'instagram' };
+
 export function VenueDetail({ id, initialVenue }: { id: number; initialVenue: Venue }) {
   const router = useRouter();
+  const [managing, setManaging] = useState(false);
+  const [editTarget, setEditTarget] = useState<EditTarget | null>(null);
+
   const { data: venue } = useQuery<Venue>({
     queryKey: ['venue', id],
     queryFn: async () => {
@@ -110,13 +118,41 @@ export function VenueDetail({ id, initialVenue }: { id: number; initialVenue: Ve
         </div>
       )}
 
-      <div className="mt-6">
-        <AddMediaModal venueId={venue.id} instagramUrl={venue.instagramUrl} />
+      <div className="mt-6 flex gap-2">
+        <AddMediaModal
+          venueId={venue.id}
+          instagramUrl={venue.instagramUrl}
+          editTarget={editTarget}
+          onEditClose={() => setEditTarget(null)}
+        />
+        <button
+          onClick={() => setManaging((m) => !m)}
+          className={[
+            'flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-sm font-medium transition-colors',
+            managing
+              ? 'border-gray-900 bg-gray-900 text-white'
+              : 'border-gray-200 bg-white text-gray-700 hover:bg-gray-50',
+          ].join(' ')}
+        >
+          {managing ? <><Check size={14} /> Done</> : <><Pencil size={14} /> Manage</>}
+        </button>
       </div>
 
       <div className="mt-6 flex flex-col gap-6">
-        <LinksSection links={venue.links} />
-        {venue.instagramUrl && <SocialSection instagramUrl={venue.instagramUrl} />}
+        <LinksSection
+          links={venue.links}
+          venueId={venue.id}
+          managing={managing}
+          onEdit={(link) => setEditTarget({ type: 'link', link })}
+        />
+        {venue.instagramUrl && (
+          <SocialSection
+            instagramUrl={venue.instagramUrl}
+            venueId={venue.id}
+            managing={managing}
+            onEdit={() => setEditTarget({ type: 'instagram' })}
+          />
+        )}
       </div>
     </div>
   );
