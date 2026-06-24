@@ -47,7 +47,21 @@ export async function getVenues(filters: VenueFilters) {
 }
 
 export async function getVenueById(id: number) {
-  return prisma.venue.findUnique({ where: { id } });
+  return prisma.venue.findUnique({
+    where: { id },
+    include: { links: { orderBy: { createdAt: 'asc' } } },
+  });
+}
+
+export async function addVenueLink(
+  venueId: number,
+  data: { url: string; ogTitle?: string | null; ogDescription?: string | null; ogImage?: string | null }
+) {
+  return prisma.venueLink.create({ data: { venueId, ...data } });
+}
+
+export async function deleteVenueLink(id: number) {
+  return prisma.venueLink.delete({ where: { id } });
 }
 
 export async function createVenue(data: {
@@ -59,7 +73,6 @@ export async function createVenue(data: {
   lng?: number | null;
   sleeps?: number | null;
   googleMapsUrl?: string | null;
-  websiteUrl?: string | null;
   instagramUrl?: string | null;
   googlePlaceId?: string | null;
   photoUrl?: string | null;
@@ -78,7 +91,6 @@ export async function updateVenue(
     lng?: number | null;
     sleeps?: number | null;
     googleMapsUrl?: string | null;
-    websiteUrl?: string | null;
     instagramUrl?: string | null;
     googlePlaceId?: string | null;
     photoUrl?: string | null;

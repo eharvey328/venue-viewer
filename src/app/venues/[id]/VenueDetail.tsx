@@ -5,9 +5,18 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
 import { MapPin, BedSingle, ExternalLink } from 'lucide-react';
-import { buttonVariants, Button } from '@/components/ui/button';
+import { buttonVariants } from '@/components/ui/button';
 import { LinksSection } from './LinksSection';
 import { SocialSection } from './SocialSection';
+import { AddMediaModal } from './AddMediaModal';
+
+interface VenueLink {
+  id: number;
+  url: string;
+  ogTitle: string | null;
+  ogDescription: string | null;
+  ogImage: string | null;
+}
 
 interface Venue {
   id: number;
@@ -15,9 +24,9 @@ interface Venue {
   address: string | null;
   sleeps: number | null;
   photoUrl: string | null;
-  websiteUrl: string | null;
   googleMapsUrl: string | null;
   instagramUrl: string | null;
+  links: VenueLink[];
 }
 
 export function VenueDetail({ id, initialVenue }: { id: number; initialVenue: Venue }) {
@@ -102,13 +111,11 @@ export function VenueDetail({ id, initialVenue }: { id: number; initialVenue: Ve
       )}
 
       <div className="mt-6">
-        <Button variant="outline" className="w-full" disabled>
-          + Add Media
-        </Button>
+        <AddMediaModal venueId={venue.id} />
       </div>
 
       <div className="mt-6 flex flex-col gap-6">
-        <LinksSection websiteUrl={venue.websiteUrl} />
+        <LinksSection links={venue.links} />
         {venue.instagramUrl && <SocialSection instagramUrl={venue.instagramUrl} />}
       </div>
     </div>

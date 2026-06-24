@@ -1,0 +1,1 @@
+ALTER TABLE "Venue" DROP COLUMN IF EXISTS "websiteUrl";

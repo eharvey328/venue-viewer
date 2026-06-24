@@ -3,9 +3,10 @@
 import { z } from 'zod';
 import { redirect } from 'next/navigation';
 import { isRedirectError } from 'next/dist/client/components/redirect-error';
-import { createVenue, updateVenue, getVenueById } from '@/lib/venues';
+import { createVenue, updateVenue, getVenueById, addVenueLink } from '@/lib/venues';
 import { geocode } from '@/lib/geocode';
 import { fetchAndUploadPhoto } from '@/lib/photo';
+import { fetchOgMetadata } from '@/lib/og';
 import { actionClient } from '@/lib/safe-action';
 
 const saveVenueSchema = z.object({
@@ -21,7 +22,7 @@ const saveVenueSchema = z.object({
   lat: z.number().nullable().optional(),
   lng: z.number().nullable().optional(),
   googleMapsUrl: z.string().nullable().optional(),
-  websiteUrl: z.string().nullable().optional(),
+  websiteUrl: z.string().nullable().optional(), // from Places API only
   photoName: z.string().nullable().optional(),
 });
 
@@ -41,7 +42,6 @@ export const saveVenue = actionClient
     const address = rawAddress.trim() || null;
     const sleeps = rawSleeps ? parseInt(rawSleeps) : null;
     const parsedSleeps = Number.isNaN(sleeps) ? null : sleeps;
-    const manualWebsiteUrl = parsedInput.websiteUrl?.trim() || null;
 
     let locality: string | null = null;
     let country: string | null = null;
@@ -49,7 +49,7 @@ export const saveVenue = actionClient
     let lng: number | null = null;
     let googleMapsUrl: string | null = null;
     let googlePlaceId: string | null = null;
-    let websiteUrl: string | null = null;
+    let placesWebsiteUrl: string | null = null; // only used to create a VenueLink on new venue
     let instagramUrl: string | null = null;
     let photoUrl: string | null = null;
 
@@ -61,7 +61,7 @@ export const saveVenue = actionClient
         lng = parsedInput.lng ?? null;
         googleMapsUrl = parsedInput.googleMapsUrl ?? null;
         googlePlaceId = placeId;
-        websiteUrl = parsedInput.websiteUrl ?? null;
+        placesWebsiteUrl = parsedInput.websiteUrl ?? null;
         instagramUrl = rawInstagram?.trim() || null;
         if (photoName) {
           photoUrl = await fetchAndUploadPhoto(photoName, name.trim());
@@ -70,7 +70,6 @@ export const saveVenue = actionClient
         const existing = await getVenueById(venueId);
         const existingAddress = existing?.address?.trim() || null;
 
-        websiteUrl = manualWebsiteUrl ?? existing?.websiteUrl ?? null;
         instagramUrl =
           rawInstagram !== undefined
             ? rawInstagram.trim() || null
@@ -97,7 +96,6 @@ export const saveVenue = actionClient
         country = coords?.country ?? null;
         lat = coords?.lat ?? null;
         lng = coords?.lng ?? null;
-        websiteUrl = manualWebsiteUrl;
         instagramUrl = rawInstagram?.trim() || null;
       }
 
@@ -110,13 +108,24 @@ export const saveVenue = actionClient
         lng,
         googleMapsUrl,
         googlePlaceId,
-        websiteUrl,
         photoUrl,
         sleeps: parsedSleeps,
         instagramUrl,
       };
 
       const venue = venueId ? await updateVenue(venueId, data) : await createVenue(data);
+
+      // Auto-create a VenueLink for website URL on new venue creation via Places
+      if (!venueId && placesWebsiteUrl) {
+        const og = await fetchOgMetadata(placesWebsiteUrl);
+        await addVenueLink(venue.id, {
+          url: placesWebsiteUrl,
+          ogTitle: og?.title ?? null,
+          ogDescription: og?.description ?? null,
+          ogImage: og?.image ?? null,
+        });
+      }
+
       redirect(`/venues/${venue.id}`);
     } catch (e) {
       if (isRedirectError(e)) throw e;

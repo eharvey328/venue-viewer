@@ -18,9 +18,20 @@ model Venue {
   sleeps          Int?
   googleMapsUrl   String?
   googlePlaceId   String?
-  websiteUrl      String?
   instagramUrl    String?
   photoUrl        String?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  links     VenueLink[]
+}
+
+model VenueLink {
+  id            Int      @id @default(autoincrement())
+  venueId       Int
+  url           String
+  ogTitle       String?
+  ogDescription String?
+  ogImage       String?
+  createdAt     DateTime @default(now())
+  venue         Venue    @relation(fields: [venueId], references: [id], onDelete: Cascade)
 }
