@@ -9,6 +9,8 @@ import { MapPin, BedSingle, ExternalLink, Pencil, Check } from 'lucide-react';
 import { buttonVariants } from '@/components/ui/button';
 import { LinksSection } from './LinksSection';
 import { SocialSection } from './SocialSection';
+import { PhotosSection } from './PhotosSection';
+import { PhotoViewer } from './PhotoViewer';
 import { AddMediaModal } from './AddMediaModal';
 
 interface VenueLink {
@@ -17,6 +19,13 @@ interface VenueLink {
   ogTitle: string | null;
   ogDescription: string | null;
   ogImage: string | null;
+}
+
+interface VenuePhoto {
+  id: number;
+  url: string;
+  caption: string | null;
+  createdAt: string | Date;
 }
 
 interface Venue {
@@ -28,6 +37,7 @@ interface Venue {
   googleMapsUrl: string | null;
   instagramUrl: string | null;
   links: VenueLink[];
+  photos: VenuePhoto[];
 }
 
 type EditTarget = { type: 'link'; link: VenueLink } | { type: 'instagram' };
@@ -36,6 +46,7 @@ export function VenueDetail({ id, initialVenue }: { id: number; initialVenue: Ve
   const router = useRouter();
   const [managing, setManaging] = useState(false);
   const [editTarget, setEditTarget] = useState<EditTarget | null>(null);
+  const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
 
   const { data: venue } = useQuery<Venue>({
     queryKey: ['venue', id],
@@ -146,7 +157,13 @@ export function VenueDetail({ id, initialVenue }: { id: number; initialVenue: Ve
         </button>
       </div>
 
-      <div className="mt-6 flex flex-col gap-6">
+      <div className="mt-2 flex flex-col gap-6">
+        <PhotosSection
+          photos={venue.photos}
+          venueId={venue.id}
+          managing={managing}
+          onPhotoClick={(i) => setLightboxIndex(i)}
+        />
         <LinksSection
           links={venue.links}
           venueId={venue.id}
@@ -162,6 +179,15 @@ export function VenueDetail({ id, initialVenue }: { id: number; initialVenue: Ve
           />
         )}
       </div>
+
+      <PhotoViewer
+        photos={venue.photos}
+        initialIndex={lightboxIndex ?? 0}
+        open={lightboxIndex !== null}
+        onOpenChange={(o) => {
+          if (!o) setLightboxIndex(null);
+        }}
+      />
     </div>
   );
 }

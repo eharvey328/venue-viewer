@@ -21,7 +21,7 @@ export async function getVenues() {
 export async function getVenueById(id: number) {
   return prisma.venue.findUnique({
     where: { id },
-    include: { links: { orderBy: { createdAt: 'asc' } } },
+    include: { links: { orderBy: { createdAt: 'asc' } }, photos: { orderBy: { createdAt: 'asc' } } },
   });
 }
 
@@ -78,4 +78,15 @@ export async function updateVenue(
 
 export async function deleteVenue(id: number) {
   return prisma.venue.delete({ where: { id } });
+}
+
+export async function addVenuePhoto(
+  venueId: number,
+  data: { url: string; caption?: string | null }
+) {
+  return prisma.venuePhoto.create({ data: { venueId, ...data } });
+}
+
+export async function deleteVenuePhoto(id: number) {
+  return prisma.venuePhoto.delete({ where: { id } });
 }
