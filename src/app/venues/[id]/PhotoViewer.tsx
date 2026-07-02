@@ -44,7 +44,7 @@ export function PhotoViewer({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogPopup className="sm:inset-0 sm:translate-x-0 sm:translate-y-0 sm:max-w-none sm:rounded-none bg-black">
+      <DialogPopup fullscreen className="bg-black">
         {photo && (
           <div className="relative flex h-full flex-col items-center justify-center">
             {/* eslint-disable-next-line @next/next/no-img-element */}

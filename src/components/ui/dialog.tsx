@@ -31,19 +31,27 @@ export function DialogBackdrop() {
 export function DialogPopup({
   children,
   className,
+  fullscreen,
 }: {
   children: React.ReactNode;
   className?: string;
+  fullscreen?: boolean;
 }) {
+  const baseClasses = fullscreen
+    ? 'fixed inset-0 z-50 flex flex-col'
+    : [
+        // Full-screen on mobile, centered modal on sm+
+        'fixed inset-0 z-50 flex flex-col bg-white',
+        'sm:inset-auto sm:left-1/2 sm:top-1/2 sm:-translate-x-1/2 sm:-translate-y-1/2',
+        'sm:w-full sm:max-w-md sm:rounded-2xl sm:shadow-xl',
+      ].join(' ');
+
   return (
     <DialogPrimitive.Portal>
       <DialogBackdrop />
       <DialogPrimitive.Popup
         className={[
-          // Full-screen on mobile, centered modal on sm+
-          'fixed inset-0 z-50 flex flex-col bg-white',
-          'sm:inset-auto sm:left-1/2 sm:top-1/2 sm:-translate-x-1/2 sm:-translate-y-1/2',
-          'sm:w-full sm:max-w-md sm:rounded-2xl sm:shadow-xl',
+          baseClasses,
           'transition-all data-[ending-style]:opacity-0 data-[starting-style]:opacity-0',
           className,
         ]
